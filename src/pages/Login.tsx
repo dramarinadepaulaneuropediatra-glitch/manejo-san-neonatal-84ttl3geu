@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { extractFieldErrors } from '@/lib/pocketbase/errors'
+import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,19 +13,25 @@ import { useToast } from '@/hooks/use-toast'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loadingLogin, setLoadingLogin] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { user, loading } = useAuth()
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/course', { replace: true })
+    }
+  }, [user, loading, navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    setLoadingLogin(true)
     setErrors({})
 
     try {
       await pb.collection('users').authWithPassword(email, password)
-      // Redirect directly to Section 1 as per acceptance criteria
       navigate('/course/1')
     } catch (err: any) {
       setErrors(extractFieldErrors(err))
@@ -33,9 +40,16 @@ export default function Login() {
         description: 'Credenciais inválidas. Tente novamente.',
         variant: 'destructive',
       })
-    } finally {
-      setLoading(false)
+      setLoadingLogin(false)
     }
+  }
+
+  if (loading || user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/40">
+        <div className="animate-pulse text-muted-foreground font-medium">Verificando sessão...</div>
+      </div>
+    )
   }
 
   return (
@@ -73,8 +87,8 @@ export default function Login() {
               />
               {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Entrando...' : 'Acessar Curso'}
+            <Button type="submit" className="w-full" disabled={loadingLogin}>
+              {loadingLogin ? 'Entrando...' : 'Acessar Curso'}
             </Button>
           </form>
           <div className="mt-6 text-center text-sm text-muted-foreground">

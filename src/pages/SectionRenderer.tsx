@@ -31,18 +31,33 @@ export default function SectionRenderer() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [canProceed, setCanProceed] = useState(true)
 
-  const section = sections.find((s) => s.order === order)
-  const prevSection = sections.find((s) => s.order === order - 1)
-  const nextSection = sections.find((s) => s.order === order + 1)
+  const section = sections?.find((s) => s.order === order)
+  const prevSection = sections?.find((s) => s.order === order - 1)
+  const nextSection = sections?.find((s) => s.order === order + 1)
 
   useEffect(() => {
+    let isMounted = true
     if (section) {
       setLoadingInts(true)
-      getInteractionsBySection(section.id).then((ints) => {
-        setInteractions(ints)
-        setLoadingInts(false)
-        setCurrentSlide(0)
-      })
+      getInteractionsBySection(section.id)
+        .then((ints) => {
+          if (isMounted) {
+            setInteractions(ints || [])
+            setLoadingInts(false)
+            setCurrentSlide(0)
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+          if (isMounted) {
+            setInteractions([])
+            setLoadingInts(false)
+            setCurrentSlide(0)
+          }
+        })
+    }
+    return () => {
+      isMounted = false
     }
   }, [section])
 
@@ -62,9 +77,13 @@ export default function SectionRenderer() {
         arr.push({ id: 'med_table', type: 'med_table' })
       }
 
-      interactions.forEach((int) => {
-        arr.push({ id: int.id, type: 'interaction', interaction: int })
-      })
+      if (Array.isArray(interactions)) {
+        interactions.forEach((int) => {
+          if (int && int.id) {
+            arr.push({ id: int.id, type: 'interaction', interaction: int })
+          }
+        })
+      }
     }
     return arr
   }, [section, interactions])
@@ -80,7 +99,7 @@ export default function SectionRenderer() {
   }, [currentSlide, slide])
 
   const handleNext = async () => {
-    if (currentSlide < slides.length - 1) {
+    if (slides.length > 0 && currentSlide < slides.length - 1) {
       setCurrentSlide((c) => c + 1)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
@@ -102,6 +121,7 @@ export default function SectionRenderer() {
   }
 
   const renderInteraction = (int: any) => {
+    if (!int || !int.type) return null
     if (int.type === 'icebreaker')
       return <Icebreaker interaction={int} onComplete={() => setCanProceed(true)} />
     if (int.type === 'quiz' || int.type === 'scenario')
@@ -137,39 +157,39 @@ export default function SectionRenderer() {
             </h1>
           </div>
           <div className="text-xs font-semibold text-muted-foreground bg-muted px-3 py-1 rounded-full whitespace-nowrap">
-            Parte {currentSlide + 1} de {slides.length}
+            Parte {currentSlide + 1} de {slides.length > 0 ? slides.length : 1}
           </div>
         </div>
         <div className="w-full bg-secondary h-1.5 rounded-full mt-4 overflow-hidden">
           <div
             className="bg-primary h-full rounded-full transition-all duration-500 ease-in-out"
-            style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
+            style={{ width: `${((currentSlide + 1) / Math.max(slides.length, 1)) * 100}%` }}
           />
         </div>
       </div>
 
       <div className="slide-content animate-fade-in-up duration-500">
-        {slide.type === 'content' && (
+        {slide?.type === 'content' && (
           <div className="prose prose-slate prose-lg max-w-none text-foreground/90 leading-relaxed">
             {slide.content}
           </div>
         )}
 
-        {slide.type === 'finnegan_table' && (
+        {slide?.type === 'finnegan_table' && (
           <div className="mt-2">
             <h2 className="text-2xl font-bold mb-6">Tabela de Referência Finnegan</h2>
             <FinneganTable />
           </div>
         )}
 
-        {slide.type === 'med_table' && (
+        {slide?.type === 'med_table' && (
           <div className="mt-2">
             <h2 className="text-2xl font-bold mb-6">Guia de Terapêutica Farmacológica</h2>
             <MedTable />
           </div>
         )}
 
-        {slide.type === 'interaction' && (
+        {slide?.type === 'interaction' && (
           <div className="mt-4 flex flex-col items-center">
             {renderInteraction(slide.interaction)}
           </div>
@@ -188,7 +208,7 @@ export default function SectionRenderer() {
           className={`font-semibold transition-all ${!canProceed ? 'opacity-50 grayscale' : 'hover:scale-[1.02] shadow-md'}`}
           size="lg"
         >
-          {currentSlide < slides.length - 1
+          {slides.length > 0 && currentSlide < slides.length - 1
             ? 'Avançar Tópico'
             : nextSection
               ? 'Concluir e Ir Próximo Módulo'
