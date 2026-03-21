@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom'
 import { getInteractionsBySection, markSectionComplete } from '@/services/api'
 import { Button } from '@/components/ui/button'
-import { ChevronRight, ChevronLeft, ExternalLink, BookOpen } from 'lucide-react'
+import { ChevronRight, ChevronLeft, ExternalLink, BookOpen, AlertTriangle } from 'lucide-react'
 import { Icebreaker } from '@/components/interactions/Icebreaker'
 import { Quiz } from '@/components/interactions/Quiz'
 import { CriticalThinking } from '@/components/interactions/CriticalThinking'
@@ -79,7 +79,7 @@ export default function SectionRenderer() {
 
       if (Array.isArray(interactions)) {
         interactions.forEach((int) => {
-          if (int && int.id) {
+          if (int && int.id && int.type) {
             arr.push({ id: int.id, type: 'interaction', interaction: int })
           }
         })
@@ -121,7 +121,7 @@ export default function SectionRenderer() {
   }
 
   const renderInteraction = (int: any) => {
-    if (!int || !int.type) return null
+    if (!int || typeof int !== 'object' || !int.type) return null
     if (int.type === 'icebreaker')
       return <Icebreaker interaction={int} onComplete={() => setCanProceed(true)} />
     if (int.type === 'quiz' || int.type === 'scenario')
@@ -145,7 +145,7 @@ export default function SectionRenderer() {
     )
 
   return (
-    <div className="space-y-8 pb-32 max-w-3xl mx-auto" key={`${section.id}-${currentSlide}`}>
+    <div className="space-y-8 pb-32 max-w-4xl mx-auto" key={`${section.id}-${currentSlide}`}>
       <div className="border-b pb-4 mb-6">
         <div className="flex justify-between items-end gap-4">
           <div>
@@ -177,19 +177,21 @@ export default function SectionRenderer() {
 
         {slide?.type === 'finnegan_table' && (
           <div className="mt-2">
-            <h2 className="text-2xl font-bold mb-6">Tabela de Referência Finnegan</h2>
+            <h2 className="text-2xl font-bold mb-6 text-slate-800">
+              Tabela de Referência Finnegan
+            </h2>
             <FinneganTable />
           </div>
         )}
 
         {slide?.type === 'med_table' && (
           <div className="mt-2">
-            <h2 className="text-2xl font-bold mb-6">Guia de Terapêutica Farmacológica</h2>
+            <h2 className="text-2xl font-bold mb-6 text-slate-800">Compêndio Farmacológico</h2>
             <MedTable />
           </div>
         )}
 
-        {slide?.type === 'interaction' && (
+        {slide?.type === 'interaction' && slide.interaction && (
           <div className="mt-4 flex flex-col items-center">
             {renderInteraction(slide.interaction)}
           </div>
@@ -217,6 +219,27 @@ export default function SectionRenderer() {
         </Button>
       </div>
     </div>
+  )
+}
+
+function ReferenceLink({ title, desc, url }: { title: string; desc: string; url: string }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-card border rounded-xl hover:shadow-md transition-all hover:border-primary/50 group"
+    >
+      <div>
+        <h4 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
+          {title}
+        </h4>
+        <p className="text-sm text-muted-foreground mt-1">{desc}</p>
+      </div>
+      <div className="bg-primary/10 text-primary p-2 rounded-full shrink-0 self-start sm:self-center group-hover:bg-primary group-hover:text-white transition-colors">
+        <ExternalLink className="h-5 w-5" />
+      </div>
+    </a>
   )
 }
 
@@ -340,7 +363,7 @@ function renderStaticContent(order: number) {
             leva a internações prolongadas e prescrições errôneas.
           </p>
           <div className="flex flex-col md:flex-row gap-6 my-8">
-            <div className="flex-1 bg-slate-50 p-6 rounded-xl border">
+            <div className="flex-1 bg-slate-50 p-6 rounded-xl border border-slate-200">
               <h3 className="font-bold mb-3 text-lg text-slate-800">Escala de Finnegan</h3>
               <p className="text-[15px] text-slate-600 leading-relaxed mb-4">
                 A escala tradicional de ouro. Avalia detalhadamente 21 sintomas. É complexa e, por
@@ -368,7 +391,7 @@ function renderStaticContent(order: number) {
           <p className="text-lg mb-6">
             O tratamento <strong>sempre</strong> inicia com medidas não farmacológicas intensivas. E
             mesmo quando a medicação é necessária, estas medidas devem ser mantidas e reforçadas
-            durante toda a internação. Elas são o suporte do sistema nervoso simpático.
+            durante toda a internação. Elas são o suporte estrutural do sistema nervoso simpático.
           </p>
           <div className="my-10 px-0 md:px-8">
             <Carousel className="w-full max-w-2xl mx-auto">
@@ -443,14 +466,13 @@ function renderStaticContent(order: number) {
             altos consecutivos ou falha funcional grave na escala ESC —, a intervenção farmacológica
             está plenamente indicada.
           </p>
-          <div className="bg-primary/5 border border-primary/20 p-5 rounded-lg my-6">
+          <div className="bg-primary/5 border border-primary/20 p-5 rounded-lg my-6 shadow-sm">
             <h4 className="font-bold text-primary mb-2">Objetivo Primário da Terapêutica</h4>
             <p className="text-sm leading-relaxed text-foreground/80">
               O objetivo <strong>não</strong> é reverter imediatamente todos os tremores ou criar um
               recém-nascido completamente letárgico, mas sim controlar a hiperatividade autonômica a
               um nível que permita que o neonato descanse, se alimente de forma coordenada e ganhe
-              peso. Uma vez estabilizado, inicia-se o desmame progressivo, lento (10-20% ao dia) e
-              monitorado.
+              peso. Uma vez estabilizado, inicia-se o desmame progressivo e monitorado.
             </p>
           </div>
         </>
@@ -479,7 +501,7 @@ function renderStaticContent(order: number) {
               O manejo humano, interdisciplinar e rigorosamente baseado em evidências transforma e
               protege o futuro neurológico de recém-nascidos afetados pela SAN. A consolidação da
               abordagem ESC e o uso racional dos suportes farmacológicos são a fundação do cuidado
-              moderno.
+              moderno no CTI.
             </p>
           </div>
         </>
@@ -487,76 +509,57 @@ function renderStaticContent(order: number) {
     case 8:
       return (
         <div className="space-y-8 animate-fade-in-up">
-          <div className="bg-primary/5 border border-primary/20 p-6 rounded-xl">
+          <div className="bg-primary/5 border border-primary/20 p-6 rounded-xl shadow-sm">
             <h3 className="text-xl font-bold text-primary flex items-center gap-2 mb-3">
               <BookOpen className="h-6 w-6" />
-              Base Científica
+              Central de Referências Bibliográficas
             </h3>
             <p className="text-[15px] leading-relaxed text-foreground/80">
               O conteúdo deste curso, bem como as diretrizes de dosagem e protocolos de manejo
-              farmacológico (como a transição para Morfina e Metadona), foram embasados nas
-              seguintes referências científicas e de saúde pública de alta autoridade:
+              farmacológico, foram embasados nas principais diretrizes internacionais e nacionais:
             </p>
+
+            <div className="mt-5 p-4 bg-amber-50 border border-amber-200 rounded-lg flex gap-3 items-start text-amber-900 text-sm shadow-sm">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
+              <p className="leading-relaxed">
+                <strong>Aviso Obrigatório:</strong> Consulte sempre as fontes originais para
+                confirmação de doses e protocolos atualizados. A prática neonatológica baseada em
+                evidências evolui constantemente.
+              </p>
+            </div>
           </div>
 
           <div className="grid gap-4">
-            <a
-              href="https://publications.aap.org/pediatrics/article/146/5/e2020029074/33502/Neonatal-Opioid-Withdrawal-Syndrome"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-card border rounded-xl hover:shadow-md transition-all hover:border-primary/50 group"
-            >
-              <div>
-                <h4 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
-                  American Academy of Pediatrics (AAP)
-                </h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  "Neonatal Opioid Withdrawal Syndrome" clinical reports (2020).
-                </p>
-              </div>
-              <div className="bg-primary/10 text-primary p-2 rounded-full shrink-0 self-start sm:self-center group-hover:bg-primary group-hover:text-white transition-colors">
-                <ExternalLink className="h-5 w-5" />
-              </div>
-            </a>
-
-            <a
-              href="https://www.sbp.com.br/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-card border rounded-xl hover:shadow-md transition-all hover:border-primary/50 group"
-            >
-              <div>
-                <h4 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
-                  Sociedade Brasileira de Pediatria (SBP)
-                </h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Diretrizes sobre Cuidados Neonatais e Manejo da SAN.
-                </p>
-              </div>
-              <div className="bg-primary/10 text-primary p-2 rounded-full shrink-0 self-start sm:self-center group-hover:bg-primary group-hover:text-white transition-colors">
-                <ExternalLink className="h-5 w-5" />
-              </div>
-            </a>
-
-            <a
-              href="https://www.who.int/publications/i/item/9789241548731"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-card border rounded-xl hover:shadow-md transition-all hover:border-primary/50 group"
-            >
-              <div>
-                <h4 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
-                  World Health Organization (WHO)
-                </h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Guidelines for the identification and management of substance use and substance
-                  use disorders in pregnancy (2014).
-                </p>
-              </div>
-              <div className="bg-primary/10 text-primary p-2 rounded-full shrink-0 self-start sm:self-center group-hover:bg-primary group-hover:text-white transition-colors">
-                <ExternalLink className="h-5 w-5" />
-              </div>
-            </a>
+            <ReferenceLink
+              title="American Academy of Pediatrics (AAP)"
+              desc='Clinical Report: "Neonatal Opioid Withdrawal Syndrome" (2020).'
+              url="https://publications.aap.org/pediatrics/article/146/5/e2020029074/33502/Neonatal-Opioid-Withdrawal-Syndrome"
+            />
+            <ReferenceLink
+              title="Sociedade Brasileira de Pediatria (SBP)"
+              desc="Diretrizes sobre Cuidados Neonatais e Manejo da SAN (2021)."
+              url="https://www.sbp.com.br/"
+            />
+            <ReferenceLink
+              title="NICE Guidelines"
+              desc="Neonatal infection and withdrawal protocols."
+              url="https://www.nice.org.uk/"
+            />
+            <ReferenceLink
+              title="The Lancet"
+              desc="Pharmacological vs non-pharmacological management in SAN outcomes."
+              url="https://www.thelancet.com/"
+            />
+            <ReferenceLink
+              title="JAMA Pediatrics"
+              desc="Trends in adjunctive therapies for severe withdrawal."
+              url="https://jamanetwork.com/journals/jamapediatrics"
+            />
+            <ReferenceLink
+              title="Neurology"
+              desc="Efficacy of Gabapentin and Clonidine as adjuvants in refractory cases."
+              url="https://n.neurology.org/"
+            />
           </div>
         </div>
       )

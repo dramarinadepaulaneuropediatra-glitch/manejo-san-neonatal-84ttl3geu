@@ -3,7 +3,7 @@ import { saveResponse, getMyResponse } from '@/services/api'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, XCircle, HelpCircle } from 'lucide-react'
+import { CheckCircle2, XCircle, HelpCircle, GraduationCap } from 'lucide-react'
 
 export function Quiz({ interaction, onComplete }: { interaction: any; onComplete: () => void }) {
   const [selected, setSelected] = useState<string>('')
@@ -90,14 +90,15 @@ export function Quiz({ interaction, onComplete }: { interaction: any; onComplete
       ) : (
         <div className="space-y-4 animate-fade-in-up mt-8 border-t pt-6">
           <div className="flex items-center gap-3 mb-4">
-            <h4 className="font-bold text-lg text-foreground/90">Análise do Caso</h4>
+            <GraduationCap className="h-6 w-6 text-indigo-600" />
+            <h4 className="font-bold text-lg text-indigo-900">Feedback Pedagógico</h4>
             {isCorrect ? (
-              <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full font-bold uppercase tracking-wider">
-                Correto
+              <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full font-bold uppercase tracking-wider ml-auto">
+                Acerto
               </span>
             ) : (
-              <span className="px-3 py-1 bg-rose-100 text-rose-800 text-xs rounded-full font-bold uppercase tracking-wider">
-                Incorreto
+              <span className="px-3 py-1 bg-rose-100 text-rose-800 text-xs rounded-full font-bold uppercase tracking-wider ml-auto">
+                Revisar
               </span>
             )}
           </div>
