@@ -39,6 +39,14 @@ export default function Login() {
     setLoadingLogin(true)
     setErrors({})
 
+    if (password !== 'HJK2026') {
+      setErrors({
+        password: 'A senha unificada para todos os usuários é HJK2026.',
+      })
+      setLoadingLogin(false)
+      return
+    }
+
     if (!validateEmailDomain(email)) {
       setErrors({
         email: 'Acesso restrito: Por favor, utilize seu e-mail institucional @hospitalhjk.com.br',
@@ -52,7 +60,7 @@ export default function Login() {
       setErrors(extractFieldErrors(error))
       toast({
         title: 'Erro no login',
-        description: 'Credenciais inválidas. Tente novamente.',
+        description: 'Credenciais inválidas. Verifique seus dados e tente novamente.',
         variant: 'destructive',
       })
     }
@@ -63,6 +71,14 @@ export default function Login() {
     e.preventDefault()
     setLoadingLogin(true)
     setErrors({})
+
+    if (password !== 'HJK2026') {
+      setErrors({
+        password: 'A senha unificada para registro e acesso é HJK2026.',
+      })
+      setLoadingLogin(false)
+      return
+    }
 
     if (!validateEmailDomain(email)) {
       setErrors({
@@ -132,11 +148,11 @@ export default function Login() {
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Senha (MASP)</Label>
+                  <Label htmlFor="password">Senha (HJK2026)</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Digite seu MASP"
+                    placeholder="HJK2026"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -179,15 +195,15 @@ export default function Login() {
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-password">Senha (MASP)</Label>
+                  <Label htmlFor="reg-password">Senha (HJK2026)</Label>
                   <Input
                     id="reg-password"
                     type="password"
-                    placeholder="Digite seu MASP"
+                    placeholder="HJK2026"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={8}
+                    minLength={7}
                   />
                   {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
