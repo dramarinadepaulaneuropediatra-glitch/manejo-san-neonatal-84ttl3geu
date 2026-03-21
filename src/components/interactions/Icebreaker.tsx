@@ -7,7 +7,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { MessageCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
-export function Icebreaker({ interaction }: { interaction: any }) {
+export function Icebreaker({
+  interaction,
+  onComplete,
+}: {
+  interaction: any
+  onComplete: () => void
+}) {
   const [text, setText] = useState('')
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [responses, setResponses] = useState<any[]>([])
@@ -20,12 +26,13 @@ export function Icebreaker({ interaction }: { interaction: any }) {
     if (my) {
       setHasSubmitted(true)
       setText(my.answer)
+      onComplete()
     }
   }
 
   useEffect(() => {
     loadResponses()
-  }, [interaction.id])
+  }, [interaction.id, onComplete])
 
   useRealtime('responses', () => {
     loadResponses()
@@ -34,18 +41,19 @@ export function Icebreaker({ interaction }: { interaction: any }) {
   const handleSubmit = async () => {
     if (!text.trim()) return
     try {
-      await saveResponse(interaction.id, text)
       setHasSubmitted(true)
+      await saveResponse(interaction.id, text)
       toast({ title: 'Resposta enviada!', description: 'Obrigado por compartilhar.' })
+      onComplete()
     } catch (e) {
       toast({ title: 'Erro', variant: 'destructive' })
     }
   }
 
   return (
-    <div className="space-y-6 bg-blue-50/50 p-6 rounded-xl border border-blue-100">
+    <div className="space-y-6 bg-blue-50/50 p-6 rounded-xl border border-blue-100 w-full">
       <div className="flex gap-3 items-center text-blue-800">
-        <MessageCircle className="h-5 w-5" />
+        <MessageCircle className="h-5 w-5 shrink-0" />
         <h3 className="font-semibold text-lg">{interaction.question}</h3>
       </div>
 
@@ -55,23 +63,25 @@ export function Icebreaker({ interaction }: { interaction: any }) {
             placeholder="Digite sua resposta aqui..."
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="bg-white min-h-[100px]"
+            className="bg-white min-h-[100px] text-base"
           />
-          <Button onClick={handleSubmit}>Compartilhar</Button>
+          <Button onClick={handleSubmit} size="lg">
+            Compartilhar Reflexão
+          </Button>
         </div>
       ) : (
-        <div className="space-y-4">
-          <p className="text-sm font-medium text-emerald-600 bg-emerald-50 p-3 rounded-md">
-            ✅ Sua resposta foi registrada. Veja o que outros colegas disseram:
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-sm font-medium text-emerald-700 bg-emerald-100/50 border border-emerald-200 p-3 rounded-md flex items-center gap-2">
+            <span>✅</span> Sua resposta foi registrada. Veja o que outros colegas disseram:
           </p>
-          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
             {responses.map((r, i) => (
               <Card key={r.id} className="animate-fade-in border-none shadow-sm">
-                <CardContent className="p-4 flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                <CardContent className="p-4 flex gap-3 items-start">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0 mt-0.5">
                     {r.expand?.user_id?.name?.charAt(0) || 'U'}
                   </div>
-                  <p className="text-sm text-foreground/90 mt-1">{r.answer}</p>
+                  <p className="text-[15px] text-foreground/90 mt-1 leading-snug">{r.answer}</p>
                 </CardContent>
               </Card>
             ))}

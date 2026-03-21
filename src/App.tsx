@@ -8,6 +8,7 @@ import CourseLayout from './components/CourseLayout'
 import Login from './pages/Login'
 import CourseOverview from './pages/CourseOverview'
 import SectionRenderer from './pages/SectionRenderer'
+import Gabarito from './pages/Gabarito'
 import NotFound from './pages/NotFound'
 
 const App = () => (
@@ -24,6 +25,8 @@ const App = () => (
           <Route element={<Layout />}>
             <Route path="/course" element={<CourseLayout />}>
               <Route index element={<CourseOverview />} />
+              {/* Static route 'gabarito' must be placed before dynamic ':id' */}
+              <Route path="gabarito" element={<Gabarito />} />
               <Route path=":id" element={<SectionRenderer />} />
             </Route>
           </Route>

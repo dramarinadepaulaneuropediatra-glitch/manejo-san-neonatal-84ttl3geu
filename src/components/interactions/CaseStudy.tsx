@@ -3,7 +3,8 @@ import { saveResponse, getMyResponse } from '@/services/api'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { Activity } from 'lucide-react'
+import { Activity, CheckCircle2 } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export function CaseStudy({
   interaction,
@@ -25,7 +26,7 @@ export function CaseStudy({
         onComplete()
       }
     })
-  }, [interaction.id])
+  }, [interaction.id, onComplete])
 
   const toggleSymptom = (id: string) => {
     if (submitted) return
@@ -33,54 +34,71 @@ export function CaseStudy({
   }
 
   const handleSubmit = async () => {
-    await saveResponse(interaction.id, selected)
     setSubmitted(true)
+    await saveResponse(interaction.id, selected)
     onComplete()
   }
 
   return (
-    <div className="space-y-6 bg-slate-50 p-6 rounded-xl border">
+    <div className="space-y-6 bg-slate-50 p-6 rounded-xl border w-full">
       <div className="flex gap-3 items-center text-slate-800">
-        <Activity className="h-6 w-6" />
-        <h3 className="font-semibold text-lg">Simulação de Caso Clínico</h3>
+        <Activity className="h-6 w-6 text-primary" />
+        <h3 className="font-semibold text-lg">Critérios ESC (Eat, Sleep, Console)</h3>
       </div>
-      <div className="bg-white p-4 rounded-lg border text-sm leading-relaxed border-l-4 border-l-primary">
-        <p className="font-medium text-muted-foreground mb-1">Cenário:</p>
-        {interaction.question}
+      <div className="bg-white p-5 rounded-lg border text-sm leading-relaxed border-l-4 border-l-primary shadow-sm">
+        <p className="font-semibold text-muted-foreground mb-2 uppercase tracking-wide text-xs">
+          Cenário Clínico:
+        </p>
+        <p className="text-base text-foreground/90">{interaction.question}</p>
       </div>
 
-      <div className="space-y-3 mt-4">
-        <p className="font-semibold text-sm">Selecione os critérios ESC aplicáveis:</p>
-        {opts.symptoms.map((s: any) => (
-          <div
-            key={s.id}
-            className="flex items-center space-x-3 p-2 hover:bg-slate-100 rounded-md transition-colors"
-          >
-            <Checkbox
-              id={s.id}
-              checked={selected.includes(s.id)}
-              onCheckedChange={() => toggleSymptom(s.id)}
-              disabled={submitted}
-            />
-            <Label
-              htmlFor={s.id}
-              className="cursor-pointer flex-1 font-normal text-base leading-snug"
+      <div className="space-y-3 mt-6">
+        <p className="font-semibold text-sm text-slate-700">
+          Selecione as disfunções funcionais aplicáveis:
+        </p>
+        <div className="grid gap-2">
+          {opts.symptoms.map((s: any) => (
+            <div
+              key={s.id}
+              className={`flex items-center space-x-3 p-3 rounded-md transition-colors border ${
+                selected.includes(s.id)
+                  ? 'border-primary/50 bg-primary/5'
+                  : 'border-transparent hover:bg-slate-100'
+              }`}
             >
-              {s.text}
-            </Label>
-          </div>
-        ))}
+              <Checkbox
+                id={s.id}
+                checked={selected.includes(s.id)}
+                onCheckedChange={() => toggleSymptom(s.id)}
+                disabled={submitted}
+              />
+              <Label
+                htmlFor={s.id}
+                className="cursor-pointer flex-1 font-medium text-[15px] leading-snug"
+              >
+                {s.text}
+              </Label>
+            </div>
+          ))}
+        </div>
       </div>
 
       {!submitted ? (
-        <Button onClick={handleSubmit} disabled={selected.length === 0}>
-          Finalizar Avaliação
+        <Button onClick={handleSubmit} disabled={selected.length === 0} size="lg">
+          Finalizar Avaliação ESC
         </Button>
       ) : (
-        <div className="bg-emerald-50 text-emerald-800 p-4 rounded-lg text-sm border border-emerald-200">
-          <strong>Avaliação concluída!</strong> O uso da escala ESC foca no conforto funcional do RN
-          ao invés da mera contagem de sintomas como no Finnegan.
-        </div>
+        <Alert className="bg-emerald-50/80 text-emerald-900 border-emerald-200 mt-6 animate-fade-in-up">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+          <AlertTitle className="text-base font-bold">Avaliação Concluída!</AlertTitle>
+          <AlertDescription className="text-sm mt-2 leading-relaxed">
+            A abordagem ESC revolucionou o manejo da SAN ao focar na funcionalidade do RN
+            (capacidade de comer bem, dormir bem e ser consolável) ao invés da mera contagem de
+            sintomas isolados como na escala de Finnegan. É uma ferramenta fundamental que reduz a
+            exposição medicamentosa e o tempo de internação, promovendo a participação materna ativa
+            no tratamento.
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   )

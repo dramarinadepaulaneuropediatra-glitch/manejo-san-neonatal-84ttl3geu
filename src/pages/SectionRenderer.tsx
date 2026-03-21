@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom'
 import { getInteractionsBySection, markSectionComplete } from '@/services/api'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import { CaseStudy } from '@/components/interactions/CaseStudy'
 import { LivePoll } from '@/components/interactions/LivePoll'
 import { WordCloud } from '@/components/interactions/WordCloud'
 import { MedTable } from '@/components/interactions/MedTable'
+import { FinneganTable } from '@/components/interactions/FinneganTable'
 import {
   Carousel,
   CarouselContent,
@@ -26,7 +27,9 @@ export default function SectionRenderer() {
   const { sections } = useOutletContext<{ sections: any[] }>()
 
   const [interactions, setInteractions] = useState<any[]>([])
-  const [canProceed, setCanProceed] = useState(false)
+  const [loadingInts, setLoadingInts] = useState(true)
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [canProceed, setCanProceed] = useState(true)
 
   const section = sections.find((s) => s.order === order)
   const prevSection = sections.find((s) => s.order === order - 1)
@@ -34,105 +37,188 @@ export default function SectionRenderer() {
 
   useEffect(() => {
     if (section) {
+      setLoadingInts(true)
       getInteractionsBySection(section.id).then((ints) => {
         setInteractions(ints)
-        // If no interactions, or all are non-blocking, they can proceed.
-        // For simplicity, we require the interaction to call `onComplete` to unlock.
-        if (ints.length === 0) setCanProceed(true)
-        else setCanProceed(false) // Wait for interaction completion
+        setLoadingInts(false)
+        setCurrentSlide(0)
       })
     }
   }, [section])
 
+  const slides = useMemo(() => {
+    const arr: any[] = []
+    if (section) {
+      arr.push({
+        id: `content-${section.id}`,
+        type: 'content',
+        content: renderStaticContent(section.order),
+      })
+
+      if (section.order === 4) {
+        arr.push({ id: 'finnegan_table', type: 'finnegan_table' })
+      }
+      if (section.order === 6) {
+        arr.push({ id: 'med_table', type: 'med_table' })
+      }
+
+      interactions.forEach((int) => {
+        arr.push({ id: int.id, type: 'interaction', interaction: int })
+      })
+    }
+    return arr
+  }, [section, interactions])
+
+  const slide = slides[currentSlide]
+
+  useEffect(() => {
+    if (slide?.type === 'interaction') {
+      setCanProceed(false)
+    } else {
+      setCanProceed(true)
+    }
+  }, [currentSlide, slide])
+
   const handleNext = async () => {
-    if (section) await markSectionComplete(section.id)
-    if (nextSection) navigate(`/course/${nextSection.order}`)
-    else navigate('/course') // Back to overview if done
+    if (currentSlide < slides.length - 1) {
+      setCurrentSlide((c) => c + 1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      if (section) await markSectionComplete(section.id)
+      if (nextSection) navigate(`/course/${nextSection.order}`)
+      else navigate('/course/gabarito')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
-  if (!section) return <div className="p-8 text-center animate-pulse">Carregando conteúdo...</div>
+  const prevSlide = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide((c) => c - 1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      if (prevSection) navigate(`/course/${prevSection.order}`)
+      else navigate('/course')
+    }
+  }
+
+  const renderInteraction = (int: any) => {
+    if (int.type === 'icebreaker')
+      return <Icebreaker interaction={int} onComplete={() => setCanProceed(true)} />
+    if (int.type === 'quiz' || int.type === 'scenario')
+      return <Quiz interaction={int} onComplete={() => setCanProceed(true)} />
+    if (int.type === 'text')
+      return <CriticalThinking interaction={int} onComplete={() => setCanProceed(true)} />
+    if (int.type === 'case_study')
+      return <CaseStudy interaction={int} onComplete={() => setCanProceed(true)} />
+    if (int.type === 'poll')
+      return <LivePoll interaction={int} onComplete={() => setCanProceed(true)} />
+    if (int.type === 'wordcloud')
+      return <WordCloud interaction={int} onComplete={() => setCanProceed(true)} />
+    return null
+  }
+
+  if (!section || loadingInts)
+    return (
+      <div className="p-10 text-center animate-pulse text-muted-foreground">
+        Preparando módulo...
+      </div>
+    )
 
   return (
-    <div className="space-y-10 pb-24" key={section.id}>
-      <div className="border-b pb-4">
-        <p className="text-sm font-semibold text-primary mb-1">MÓDULO {section.order}</p>
-        <h1 className="text-3xl font-bold tracking-tight">{section.title}</h1>
+    <div className="space-y-8 pb-32 max-w-3xl mx-auto" key={`${section.id}-${currentSlide}`}>
+      <div className="border-b pb-4 mb-6">
+        <div className="flex justify-between items-end gap-4">
+          <div>
+            <p className="text-xs font-bold text-primary mb-1 tracking-wider uppercase">
+              Módulo {section.order}
+            </p>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground/90">
+              {section.title}
+            </h1>
+          </div>
+          <div className="text-xs font-semibold text-muted-foreground bg-muted px-3 py-1 rounded-full whitespace-nowrap">
+            Parte {currentSlide + 1} de {slides.length}
+          </div>
+        </div>
+        <div className="w-full bg-secondary h-1.5 rounded-full mt-4 overflow-hidden">
+          <div
+            className="bg-primary h-full rounded-full transition-all duration-500 ease-in-out"
+            style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
+          />
+        </div>
       </div>
 
-      <div className="prose prose-slate max-w-none text-foreground/90">
-        {renderStaticContent(section.order)}
+      <div className="slide-content animate-fade-in-up duration-500">
+        {slide.type === 'content' && (
+          <div className="prose prose-slate prose-lg max-w-none text-foreground/90 leading-relaxed">
+            {slide.content}
+          </div>
+        )}
+
+        {slide.type === 'finnegan_table' && (
+          <div className="mt-2">
+            <h2 className="text-2xl font-bold mb-6">Tabela de Referência Finnegan</h2>
+            <FinneganTable />
+          </div>
+        )}
+
+        {slide.type === 'med_table' && (
+          <div className="mt-2">
+            <h2 className="text-2xl font-bold mb-6">Guia de Terapêutica Farmacológica</h2>
+            <MedTable />
+          </div>
+        )}
+
+        {slide.type === 'interaction' && (
+          <div className="mt-4 flex flex-col items-center">
+            {renderInteraction(slide.interaction)}
+          </div>
+        )}
       </div>
-
-      {interactions.map((int) => (
-        <div key={int.id} className="mt-8">
-          {int.type === 'icebreaker' && <Icebreaker interaction={int} />}
-          {int.type === 'quiz' && <Quiz interaction={int} onComplete={() => setCanProceed(true)} />}
-          {int.type === 'text' && (
-            <CriticalThinking interaction={int} onComplete={() => setCanProceed(true)} />
-          )}
-          {int.type === 'case_study' && (
-            <CaseStudy interaction={int} onComplete={() => setCanProceed(true)} />
-          )}
-          {int.type === 'poll' && (
-            <LivePoll interaction={int} onComplete={() => setCanProceed(true)} />
-          )}
-          {int.type === 'scenario' && (
-            <Quiz interaction={int} onComplete={() => setCanProceed(true)} />
-          )}
-          {int.type === 'wordcloud' && (
-            <WordCloud interaction={int} onComplete={() => setCanProceed(true)} />
-          )}
-        </div>
-      ))}
-
-      {section.order === 6 && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Tabela de Medicações</h2>
-          <MedTable />
-        </div>
-      )}
 
       {/* Persistent Footer Navigation */}
-      <div className="fixed bottom-0 right-0 left-0 md:left-[16rem] p-4 bg-background/80 backdrop-blur-md border-t flex justify-between items-center z-20">
-        <Button
-          variant="outline"
-          onClick={() =>
-            prevSection ? navigate(`/course/${prevSection.order}`) : navigate('/course')
-          }
-        >
+      <div className="fixed bottom-0 right-0 left-0 md:left-[16rem] p-4 bg-background/95 backdrop-blur-md border-t flex justify-between items-center z-20 shadow-[0_-15px_40px_-15px_rgba(0,0,0,0.1)]">
+        <Button variant="outline" onClick={prevSlide} className="font-semibold">
           <ChevronLeft className="mr-2 h-4 w-4" /> Anterior
         </Button>
+
         <Button
           onClick={handleNext}
-          disabled={!canProceed && interactions.length > 0}
-          className={!canProceed && interactions.length > 0 ? 'opacity-50' : 'animate-pulse'}
+          disabled={!canProceed}
+          className={`font-semibold transition-all ${!canProceed ? 'opacity-50 grayscale' : 'hover:scale-[1.02] shadow-md'}`}
+          size="lg"
         >
-          {nextSection ? 'Próximo' : 'Concluir Curso'} <ChevronRight className="ml-2 h-4 w-4" />
+          {currentSlide < slides.length - 1
+            ? 'Avançar Tópico'
+            : nextSection
+              ? 'Concluir e Ir Próximo Módulo'
+              : 'Concluir Curso e Ver Gabarito'}
+          <ChevronRight className="ml-2 h-5 w-5" />
         </Button>
       </div>
     </div>
   )
 }
 
-// Helper to render static text/images based on section order since we didn't use a rich text editor for the seed
 function renderStaticContent(order: number) {
   switch (order) {
     case 1:
       return (
         <>
-          <p className="lead text-lg">
-            A Síndrome de Abstinência Neonatal (SAN) é um conjunto de sinais e sintomas
-            experimentados por recém-nascidos expostos a substâncias viciantes no útero.
+          <p className="text-xl font-medium text-slate-700">
+            A Síndrome de Abstinência Neonatal (SAN) é um conjunto complexo de sinais e sintomas
+            experimentados por recém-nascidos expostos a substâncias viciantes durante a gestação.
           </p>
           <img
             src="https://img.usecurling.com/p/800/400?q=newborn%20hospital&color=blue"
             alt="UTI Neonatal"
-            className="rounded-xl w-full object-cover my-6 shadow-sm"
+            className="rounded-xl w-full object-cover my-8 shadow-sm border"
           />
           <p>
-            A prevalência da SAN aumentou dramaticamente nas últimas décadas. O manejo requer uma
-            abordagem padronizada e baseada em evidências para garantir o melhor
-            neurodesenvolvimento.
+            A prevalência da SAN aumentou dramaticamente nas últimas duas décadas, tornando-se um
+            dos principais desafios nas Unidades de Terapia Intensiva Neonatal. O manejo requer uma
+            abordagem rigorosa, padronizada e baseada em evidências para garantir o melhor
+            neurodesenvolvimento a longo prazo e reduzir o tempo de internação.
           </p>
         </>
       )
@@ -140,40 +226,47 @@ function renderStaticContent(order: number) {
       return (
         <>
           <p>
-            A apresentação clínica da SAN é multissistêmica. A hiperatividade do Sistema Nervoso
-            Central (SNC) é a marca registrada, mas sintomas gastrointestinais e autonômicos também
-            são prevalentes.
+            A apresentação clínica da SAN é predominantemente multissistêmica. A hiperatividade
+            disfuncional do Sistema Nervoso Central (SNC) é a marca registrada, mas os sintomas
+            gastrointestinais e autonômicos também são altamente prevalentes e determinantes para a
+            sobrevida nutricional.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
-            <Card className="bg-rose-50 border-rose-100">
-              <CardContent className="p-4">
-                <h4 className="font-bold text-rose-800 mb-2">Neurológico</h4>
-                <ul className="text-sm list-disc pl-4 space-y-1 text-rose-900/80">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-10">
+            <Card className="bg-rose-50/50 border-rose-100 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-5">
+                <h4 className="font-bold text-rose-800 mb-3 text-lg border-b border-rose-200 pb-2">
+                  Neurológico
+                </h4>
+                <ul className="text-[15px] list-disc pl-4 space-y-2 text-rose-900/80 font-medium">
                   <li>Tremores</li>
                   <li>Irritabilidade</li>
                   <li>Choro estridente</li>
-                  <li>Hipertonia</li>
+                  <li>Hipertonia severa</li>
                 </ul>
               </CardContent>
             </Card>
-            <Card className="bg-amber-50 border-amber-100">
-              <CardContent className="p-4">
-                <h4 className="font-bold text-amber-800 mb-2">Gastrointestinal</h4>
-                <ul className="text-sm list-disc pl-4 space-y-1 text-amber-900/80">
+            <Card className="bg-amber-50/50 border-amber-100 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-5">
+                <h4 className="font-bold text-amber-800 mb-3 text-lg border-b border-amber-200 pb-2">
+                  Gastrointestinal
+                </h4>
+                <ul className="text-[15px] list-disc pl-4 space-y-2 text-amber-900/80 font-medium">
                   <li>Dificuldade de sucção</li>
-                  <li>Vômitos</li>
-                  <li>Diarreia</li>
+                  <li>Vômitos / Regurgitação</li>
+                  <li>Diarreia profusa</li>
                   <li>Baixo ganho ponderal</li>
                 </ul>
               </CardContent>
             </Card>
-            <Card className="bg-emerald-50 border-emerald-100">
-              <CardContent className="p-4">
-                <h4 className="font-bold text-emerald-800 mb-2">Autonômico</h4>
-                <ul className="text-sm list-disc pl-4 space-y-1 text-emerald-900/80">
+            <Card className="bg-emerald-50/50 border-emerald-100 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-5">
+                <h4 className="font-bold text-emerald-800 mb-3 text-lg border-b border-emerald-200 pb-2">
+                  Autonômico
+                </h4>
+                <ul className="text-[15px] list-disc pl-4 space-y-2 text-emerald-900/80 font-medium">
                   <li>Febre / Instabilidade térmica</li>
-                  <li>Sudorese</li>
-                  <li>Espirros frequentes</li>
+                  <li>Sudorese excessiva</li>
+                  <li>Espirros e bocejos</li>
                   <li>Taquipneia</li>
                 </ul>
               </CardContent>
@@ -185,21 +278,35 @@ function renderStaticContent(order: number) {
       return (
         <>
           <p>
-            O quadro de SAN não se restringe apenas ao uso materno de drogas ilícitas. Fatores
-            predisponentes incluem:
+            O quadro de SAN não se restringe de forma alguma ao uso materno de drogas ilícitas. A
+            epidemiologia atual revela fatores predisponentes amplos e, muitas vezes, não
+            investigados:
           </p>
-          <ul className="my-4 space-y-2">
-            <li>
-              <strong>Uso de prescrições médicas:</strong> Analgésicos opióides, antidepressivos
-              (ISRS), e gabapentinoides usados na gestação.
+          <ul className="my-6 space-y-4 text-[15px] p-4 bg-muted/30 rounded-xl border">
+            <li className="flex gap-3">
+              <span className="text-primary mt-1">•</span>
+              <div>
+                <strong className="text-foreground">Uso de prescrições médicas:</strong> Analgésicos
+                opióides para dor crônica, antidepressivos inibidores de recaptação de serotonina
+                (ISRS), e gabapentinoides usados legalmente na gestação.
+              </div>
             </li>
-            <li>
-              <strong>Iatrogênica:</strong> SAN pode ocorrer em RNs internados em CTI que
-              necessitaram de sedação prolongada (fentanil, midazolam) e sofreram desmame rápido.
+            <li className="flex gap-3">
+              <span className="text-primary mt-1">•</span>
+              <div>
+                <strong className="text-foreground">Iatrogênica (Intra-Hospitalar):</strong> SAN
+                ocorre frequentemente em RNs internados em CTI que necessitaram de sedação/analgesia
+                prolongada (ex: fentanil, midazolam pós-cirúrgico) e sofreram desmame muito rápido.
+              </div>
             </li>
-            <li>
-              <strong>Poliuso:</strong> O uso combinado de substâncias (ex: Opióide + Tabaco + ISRS)
-              agrava a severidade e prolonga o internamento.
+            <li className="flex gap-3">
+              <span className="text-primary mt-1">•</span>
+              <div>
+                <strong className="text-foreground">Poliuso de Substâncias:</strong> O uso combinado
+                de substâncias lícitas e ilícitas (ex: Opióide + Tabaco + Maconha) potencializa o
+                efeito cruzado, agrava a severidade dos sintomas e prolonga exponencialmente o
+                internamento.
+              </div>
             </li>
           </ul>
         </>
@@ -207,22 +314,29 @@ function renderStaticContent(order: number) {
     case 4:
       return (
         <>
-          <p>
-            A avaliação correta é fundamental para iniciar ou desmamar o tratamento farmacológico.
+          <p className="text-lg">
+            A avaliação correta, seriada e por múltiplos profissionais é o pilar fundamental para
+            iniciar ou desmamar o tratamento na SAN. O julgamento clínico subjetivo frequentemente
+            leva a internações prolongadas e prescrições errôneas.
           </p>
-          <div className="flex flex-col md:flex-row gap-6 my-6">
-            <div className="flex-1 bg-muted p-5 rounded-lg border">
-              <h3 className="font-bold mb-2">Escala de Finnegan</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Tradicional, avalia 21 sintomas. Complexa e sujeita a variações interobservador.
-                Pontuações &gt; 8 indicam intervenção.
+          <div className="flex flex-col md:flex-row gap-6 my-8">
+            <div className="flex-1 bg-slate-50 p-6 rounded-xl border">
+              <h3 className="font-bold mb-3 text-lg text-slate-800">Escala de Finnegan</h3>
+              <p className="text-[15px] text-slate-600 leading-relaxed mb-4">
+                A escala tradicional de ouro. Avalia detalhadamente 21 sintomas. É complexa e, por
+                isso, muito sujeita a variações interobservador. Geralmente, pontuações consecutivas
+                maiores que 8 indicam falha não-farmacológica e início de intervenção medicamentosa.
               </p>
             </div>
-            <div className="flex-1 bg-primary/10 p-5 rounded-lg border border-primary/20">
-              <h3 className="font-bold text-primary mb-2">Abordagem ESC (Eat, Sleep, Console)</h3>
-              <p className="text-sm text-primary/80 mb-3">
-                Foca na funcionalidade. O RN consegue comer? Consegue dormir? É consolável? Reduz
-                drasticamente o tempo de UTI e uso de medicações.
+            <div className="flex-1 bg-primary/5 p-6 rounded-xl border border-primary/20">
+              <h3 className="font-bold text-primary mb-3 text-lg">
+                Abordagem ESC (Eat, Sleep, Console)
+              </h3>
+              <p className="text-[15px] text-primary/80 leading-relaxed mb-4">
+                O modelo moderno focado na funcionalidade global do RN. O RN consegue{' '}
+                <strong>Comer</strong>? Consegue <strong>Dormir</strong>? É{' '}
+                <strong>Consolável</strong>? Evidências mostram que esta abordagem reduz
+                drasticamente o uso de medicações sem piorar os desfechos em longo prazo.
               </p>
             </div>
           </div>
@@ -231,64 +345,72 @@ function renderStaticContent(order: number) {
     case 5:
       return (
         <>
-          <p>
-            Antes de iniciar a medicação, intervenções não farmacológicas rigorosas devem ser
-            implementadas e mantidas durante toda a internação.
+          <p className="text-lg mb-6">
+            O tratamento <strong>sempre</strong> inicia com medidas não farmacológicas intensivas. E
+            mesmo quando a medicação é necessária, estas medidas devem ser mantidas e reforçadas
+            durante toda a internação. Elas são o suporte do sistema nervoso simpático.
           </p>
-          <div className="my-8 px-8">
-            <Carousel className="w-full max-w-xl mx-auto">
+          <div className="my-10 px-0 md:px-8">
+            <Carousel className="w-full max-w-2xl mx-auto">
               <CarouselContent>
                 <CarouselItem>
-                  <Card>
-                    <CardContent className="flex flex-col aspect-square items-center justify-center p-6 text-center">
+                  <Card className="border-none shadow-md">
+                    <CardContent className="flex flex-col aspect-video items-center justify-center p-8 text-center bg-blue-50/50">
                       <img
                         src="https://img.usecurling.com/i?q=moon&color=blue"
                         alt="Ambiente"
-                        className="h-16 w-16 mb-4 opacity-70"
+                        className="h-20 w-20 mb-6 opacity-80"
                       />
-                      <h3 className="font-bold text-lg">Ambiente</h3>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Redução drástica de luz e ruído. Agrupar os cuidados para evitar manipulação
-                        excessiva.
+                      <h3 className="font-bold text-2xl text-blue-900 mb-3">Modulação Ambiental</h3>
+                      <p className="text-base text-blue-800/80 leading-relaxed">
+                        Redução drástica de luz (penumbra) e ruído sonoro contínuo. Agrupar os
+                        cuidados de enfermagem e médicos para evitar manipulação tátil excessiva e
+                        desnecessária.
                       </p>
                     </CardContent>
                   </Card>
                 </CarouselItem>
                 <CarouselItem>
-                  <Card>
-                    <CardContent className="flex flex-col aspect-square items-center justify-center p-6 text-center">
+                  <Card className="border-none shadow-md">
+                    <CardContent className="flex flex-col aspect-video items-center justify-center p-8 text-center bg-rose-50/50">
                       <img
                         src="https://img.usecurling.com/i?q=heart&color=rose"
                         alt="Conforto"
-                        className="h-16 w-16 mb-4 opacity-70"
+                        className="h-20 w-20 mb-6 opacity-80"
                       />
-                      <h3 className="font-bold text-lg">Conforto</h3>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Swaddling (enrolamento contido), balanço suave e uso de chupeta não
-                        nutritiva.
+                      <h3 className="font-bold text-2xl text-rose-900 mb-3">
+                        Técnicas de Conforto
+                      </h3>
+                      <p className="text-base text-rose-800/80 leading-relaxed">
+                        Swaddling (enrolamento contido, braços fletidos próximos à linha média),
+                        balanço suave vertical e uso contínuo de chupeta não nutritiva para
+                        organizar as sucções.
                       </p>
                     </CardContent>
                   </Card>
                 </CarouselItem>
                 <CarouselItem>
-                  <Card>
-                    <CardContent className="flex flex-col aspect-square items-center justify-center p-6 text-center">
+                  <Card className="border-none shadow-md">
+                    <CardContent className="flex flex-col aspect-video items-center justify-center p-8 text-center bg-orange-50/50">
                       <img
                         src="https://img.usecurling.com/i?q=milk&color=orange"
                         alt="Alimentação"
-                        className="h-16 w-16 mb-4 opacity-70"
+                        className="h-20 w-20 mb-6 opacity-80"
                       />
-                      <h3 className="font-bold text-lg">Alimentação</h3>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Pequenos volumes frequentes sob demanda. Calorias extras (fórmulas 24
-                        kcal/oz) se houver perda de peso severa.
+                      <h3 className="font-bold text-2xl text-orange-900 mb-3">
+                        Otimização Dietética
+                      </h3>
+                      <p className="text-base text-orange-800/80 leading-relaxed">
+                        Pequenos volumes, frequentes e sob demanda (hipercalórica, ex: 24 kcal/oz)
+                        se houver perda ponderal grave ou diarreia. Manter contato materno
+                        (aleitamento se liberado).
                       </p>
                     </CardContent>
                   </Card>
                 </CarouselItem>
               </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
+              <CarouselPrevious className="-left-4 md:-left-12" />
+              <CarouselNext className="-right-4 md:-right-12" />
             </Carousel>
           </div>
         </>
@@ -296,22 +418,48 @@ function renderStaticContent(order: number) {
     case 6:
       return (
         <>
-          <p>
-            Quando as medidas não farmacológicas falham (ex: pontuações Finnegan altas consecutivas,
-            ou falha grave no ESC), a farmacoterapia é indicada. O objetivo é controlar os sintomas
-            para permitir alimentação e sono, desmamando progressivamente.
+          <p className="text-lg">
+            Quando as medidas não farmacológicas máximas falham — comprovado por escores Finnegan
+            altos consecutivos ou falha funcional grave na escala ESC —, a intervenção farmacológica
+            está plenamente indicada.
           </p>
+          <div className="bg-primary/5 border border-primary/20 p-5 rounded-lg my-6">
+            <h4 className="font-bold text-primary mb-2">Objetivo Primário da Terapêutica</h4>
+            <p className="text-sm leading-relaxed text-foreground/80">
+              O objetivo <strong>não</strong> é reverter imediatamente todos os tremores ou criar um
+              recém-nascido completamente letárgico, mas sim controlar a hiperatividade autonômica a
+              um nível que permita que o neonato descanse, se alimente de forma coordenada e ganhe
+              peso. Uma vez estabilizado, inicia-se o desmame progressivo, lento (10-20% ao dia) e
+              monitorado.
+            </p>
+          </div>
         </>
       )
     case 7:
       return (
         <>
-          <div className="bg-gradient-to-r from-primary to-blue-600 text-white p-8 rounded-2xl shadow-lg my-6 text-center">
-            <h2 className="text-2xl font-bold mb-4 text-white">Parabéns pela Conclusão!</h2>
-            <p className="text-white/90 text-lg">
-              O manejo humanizado e baseado em evidências transforma o futuro neurológico destes
-              recém-nascidos. A abordagem ESC e o uso racional de adjuvantes são os pilares modernos
-              do tratamento.
+          <div className="bg-gradient-to-br from-primary to-blue-700 text-white p-10 rounded-2xl shadow-xl my-10 text-center animate-fade-in-up">
+            <div className="bg-white/20 p-4 rounded-full w-fit mx-auto mb-6">
+              <svg
+                className="w-12 h-12 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold mb-4 text-white">Parabéns pela Conclusão!</h2>
+            <p className="text-white/90 text-lg leading-relaxed max-w-xl mx-auto mb-8">
+              O manejo humano, interdisciplinar e rigorosamente baseado em evidências transforma e
+              protege o futuro neurológico de recém-nascidos afetados pela SAN. A consolidação da
+              abordagem ESC e o uso racional dos suportes farmacológicos são a fundação do cuidado
+              moderno.
             </p>
           </div>
         </>
