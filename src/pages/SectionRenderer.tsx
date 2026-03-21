@@ -533,57 +533,57 @@ function renderStaticContent(order: number) {
           <div className="space-y-6">
             <div className="grid gap-4">
               <ReferenceLink
-                title="Opioid Use and Opioid Use Disorder in Pregnancy."
+                title="1. Opioid Use and Opioid Use Disorder in Pregnancy."
                 desc="American College of Obstetricians and Gynecologists (2017). Maria A. Mascola, Ann E. Borders, Mishka Terplan."
                 url="https://pubmed.ncbi.nlm.nih.gov/28742676/"
               />
               <ReferenceLink
-                title="CDC Grand Rounds: Public Health Strategies to Prevent Neonatal Abstinence Syndrome."
+                title="2. CDC Grand Rounds: Public Health Strategies to Prevent Neonatal Abstinence Syndrome."
                 desc="MMWR. Morbidity and Mortality Weekly Report (2017). Ko JY, Wolicki S, Barfield WD, et al."
                 url="https://www.cdc.gov/mmwr/volumes/66/wr/mm6609a2.htm"
               />
               <ReferenceLink
-                title="Neonatal Opioid Withdrawal Syndrome."
+                title="3. Neonatal Opioid Withdrawal Syndrome."
                 desc="Pediatrics (2020). Patrick SW, Barfield WD, Poindexter BB."
-                url="https://publications.aap.org/pediatrics/article/146/5/e2020029074/39474/Neonatal-Opioid-Withdrawal-Syndrome"
+                url="https://publications.aap.org/pediatrics/article/146/5/e2020029074/75310/Neonatal-Opioid-Withdrawal-Syndrome"
               />
               <ReferenceLink
-                title="Eat, Sleep, Console Approach or Usual Care for Neonatal Opioid Withdrawal."
+                title="4. Eat, Sleep, Console Approach or Usual Care for Neonatal Opioid Withdrawal."
                 desc="The New England Journal of Medicine (2023). Young LW, Ounpraseuth ST, Merhar SL, et al."
                 url="https://www.nejm.org/doi/full/10.1056/NEJMoa2214470"
               />
               <ReferenceLink
-                title="Management of Newborns With In Utero Substance Exposure: AWHONN Practice Brief Number 18."
-                desc="Journal of Obstetric, Gynecologic, and Neonatal Nursing: JOGNN (2023)."
+                title="5. Management of Newborns With In Utero Substance Exposure: AWHONN Practice Brief Number 18."
+                desc="Journal of Obstetric, Gynecologic, and Neonatal Nursing : JOGNN (2023)."
                 url="https://pubmed.ncbi.nlm.nih.gov/36906232/"
               />
               <ReferenceLink
-                title="Neonatal Abstinence Syndrome."
+                title="6. Neonatal Abstinence Syndrome."
                 desc="The New England Journal of Medicine (2016). McQueen K, Murphy-Oikonen J."
                 url="https://www.nejm.org/doi/full/10.1056/NEJMra1600879"
               />
               <ReferenceLink
-                title="Opioid Treatment for Opioid Withdrawal in Newborn Infants."
+                title="7. Opioid Treatment for Opioid Withdrawal in Newborn Infants."
                 desc="The Cochrane Database of Systematic Reviews (2021). Zankl A, Martin J, Davey JG, Osborn DA."
                 url="https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD002059.pub4/full"
               />
               <ReferenceLink
-                title="Buprenorphine for the Treatment of the Neonatal Abstinence Syndrome."
+                title="8. Buprenorphine for the Treatment of the Neonatal Abstinence Syndrome."
                 desc="The New England Journal of Medicine (2017). Kraft WK, Adeniyi-Jones SC, Chervoneva I, et al."
                 url="https://www.nejm.org/doi/full/10.1056/NEJMoa1614835"
               />
               <ReferenceLink
-                title="Childhood Health and Educational Outcomes After Neonatal Abstinence Syndrome: A Systematic Review and Meta-Analysis."
+                title="9. Childhood Health and Educational Outcomes After Neonatal Abstinence Syndrome: A Systematic Review and Meta-Analysis."
                 desc="The Journal of Pediatrics (2020). Rees P, Stilwell PA, Bolton C, et al."
                 url="https://www.jpeds.com/article/S0022-3476(20)30600-X/fulltext"
               />
               <ReferenceLink
-                title="Neurodevelopmental Outcomes of Prenatal Opioid Exposure and Neonatal Opioid Withdrawal Syndrome: A Systematic Review From Birth to Early Adulthood."
+                title="10. Neurodevelopmental Outcomes of Prenatal Opioid Exposure and Neonatal Opioid Withdrawal Syndrome: A Systematic Review From Birth to Early Adulthood."
                 desc="Journal of Perinatology (2025). Rajaprakash M, West S, Jayakumar S, et al."
                 url="https://pubmed.ncbi.nlm.nih.gov/?term=Neurodevelopmental+Outcomes+of+Prenatal+Opioid+Exposure+and+Neonatal+Opioid+Withdrawal+Syndrome"
               />
               <ReferenceLink
-                title="Advances in the Care of Infants With Prenatal Opioid Exposure and Neonatal Opioid Withdrawal Syndrome."
+                title="11. Advances in the Care of Infants With Prenatal Opioid Exposure and Neonatal Opioid Withdrawal Syndrome."
                 desc="Pediatrics (2024). Mascarenhas M, Wachman EM, Chandra I, et al."
                 url="https://publications.aap.org/pediatrics/article/153/2/e2023063546/196395/Advances-in-the-Care-of-Infants-With-Prenatal"
               />
