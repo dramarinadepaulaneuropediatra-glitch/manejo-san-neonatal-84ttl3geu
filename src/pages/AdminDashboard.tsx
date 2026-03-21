@@ -199,6 +199,7 @@ export default function AdminDashboard() {
                 <TableHead>Profissional</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead className="w-[200px]">Progresso Geral</TableHead>
+                <TableHead className="text-center">Avaliações (Acertos/Resp.)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -208,6 +209,20 @@ export default function AdminDashboard() {
                 ).length
                 const perc =
                   data.sections.length > 0 ? Math.round((comp / data.sections.length) * 100) : 0
+
+                const userResponses = data.responses.filter((r: any) => r.user_id === u.id)
+                const userQuizResponses = userResponses.filter((r: any) =>
+                  data.interactions.some(
+                    (i: any) =>
+                      (i.type === 'quiz' || i.type === 'scenario') && i.id === r.interaction_id,
+                  ),
+                )
+                const totalQuizAnswers = userQuizResponses.length
+                const correctQuizAnswers = userQuizResponses.filter((r: any) => {
+                  const interaction = data.interactions.find((i: any) => i.id === r.interaction_id)
+                  return interaction && interaction.options?.correct === r.answer
+                }).length
+
                 return (
                   <TableRow key={u.id} className="hover:bg-muted/30">
                     <TableCell className="font-medium text-slate-800">
@@ -220,6 +235,13 @@ export default function AdminDashboard() {
                         <span className="text-xs font-bold text-slate-600 w-10 text-right">
                           {perc}%
                         </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-slate-100 text-xs font-medium">
+                        <span className="text-emerald-600 font-bold">{correctQuizAnswers}</span>
+                        <span className="mx-1 text-slate-400">/</span>
+                        <span className="text-slate-600">{totalQuizAnswers}</span>
                       </div>
                     </TableCell>
                   </TableRow>

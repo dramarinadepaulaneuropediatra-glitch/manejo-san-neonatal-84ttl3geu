@@ -2,15 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom'
 import { getInteractionsBySection, markSectionComplete } from '@/services/api'
 import { Button } from '@/components/ui/button'
-import {
-  ChevronRight,
-  ChevronLeft,
-  ExternalLink,
-  BookOpen,
-  AlertTriangle,
-  Library,
-  Microscope,
-} from 'lucide-react'
+import { ChevronRight, ChevronLeft, ExternalLink, BookOpen, AlertTriangle } from 'lucide-react'
 import { Icebreaker } from '@/components/interactions/Icebreaker'
 import { Quiz } from '@/components/interactions/Quiz'
 import { CriticalThinking } from '@/components/interactions/CriticalThinking'
@@ -520,13 +512,12 @@ function renderStaticContent(order: number) {
           <div className="bg-primary/5 border border-primary/20 p-6 rounded-xl shadow-sm">
             <h3 className="text-xl font-bold text-primary flex items-center gap-2 mb-3">
               <BookOpen className="h-6 w-6" />
-              8. Referências Bibliográficas e Links de Acesso Sugeridos (Validação)
+              8. Referências Clínicas e Científicas
             </h3>
             <p className="text-[15px] leading-relaxed text-foreground/80">
               O conteúdo deste curso, bem como as diretrizes de dosagem e protocolos de manejo
-              farmacológico, foram embasados nas principais diretrizes internacionais e nacionais
-              listadas abaixo. Todos os links são públicos ou direcionam aos artigos originais
-              peer-reviewed.
+              farmacológico, foram embasados nas 11 principais diretrizes e publicações científicas
+              listadas abaixo.
             </p>
 
             <div className="mt-5 p-4 bg-amber-50 border border-amber-200 rounded-lg flex gap-3 items-start text-amber-900 text-sm shadow-sm">
@@ -540,51 +531,62 @@ function renderStaticContent(order: number) {
           </div>
 
           <div className="space-y-6">
-            <div>
-              <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <Library className="h-5 w-5 text-primary" /> Diretrizes e Sociedades Médicas
-                (Guidelines)
-              </h4>
-              <div className="grid gap-4">
-                <ReferenceLink
-                  title="American Academy of Pediatrics (AAP)"
-                  desc='Clinical Report: "Neonatal Opioid Withdrawal Syndrome" (2020).'
-                  url="https://publications.aap.org/pediatrics/article/146/5/e2020029074/39474/Neonatal-Opioid-Withdrawal-Syndrome"
-                />
-                <ReferenceLink
-                  title="Sociedade Brasileira de Pediatria (SBP) e SBN"
-                  desc='Documento Científico: "Síndrome de Abstinência Neonatal" (2021).'
-                  url="https://www.sbp.com.br/fileadmin/user_upload/21430b-DocCient_-_Sindrome_de_Abstinencia_Neonatal.pdf"
-                />
-                <ReferenceLink
-                  title="NICE Guidelines (UK)"
-                  desc="Pregnancy and complex social factors: Guidance on substance misuse protocols (CG110)."
-                  url="https://www.nice.org.uk/guidance/cg110"
-                />
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <Microscope className="h-5 w-5 text-primary" /> Bases de Evidência e Pesquisa
-              </h4>
-              <div className="grid gap-4">
-                <ReferenceLink
-                  title="OpenEvidence (Neofax Alternative)"
-                  desc="Busca direta sobre evidências clínicas e farmacologia em SAN (Morphine/Methadone)."
-                  url="https://www.openevidence.com/search?q=neonatal+abstinence+syndrome+morphine"
-                />
-                <ReferenceLink
-                  title="The Lancet"
-                  desc="Pesquisas sobre eficácia do manejo farmacológico vs não-farmacológico na SAN."
-                  url="https://www.thelancet.com/action/doSearch?text1=neonatal+abstinence+syndrome"
-                />
-                <ReferenceLink
-                  title="JAMA Pediatrics"
-                  desc="Tendências em terapias adjuvantes e impacto epidemiológico das diretrizes ESC."
-                  url="https://jamanetwork.com/searchresults?q=neonatal%20abstinence%20syndrome&f_JournalDisplayName=JAMA+Pediatrics"
-                />
-              </div>
+            <div className="grid gap-4">
+              <ReferenceLink
+                title="Opioid Use and Opioid Use Disorder in Pregnancy."
+                desc="American College of Obstetricians and Gynecologists (2017). Maria A. Mascola, Ann E. Borders, Mishka Terplan."
+                url="https://pubmed.ncbi.nlm.nih.gov/28742676/"
+              />
+              <ReferenceLink
+                title="CDC Grand Rounds: Public Health Strategies to Prevent Neonatal Abstinence Syndrome."
+                desc="MMWR. Morbidity and Mortality Weekly Report (2017). Ko JY, Wolicki S, Barfield WD, et al."
+                url="https://www.cdc.gov/mmwr/volumes/66/wr/mm6609a2.htm"
+              />
+              <ReferenceLink
+                title="Neonatal Opioid Withdrawal Syndrome."
+                desc="Pediatrics (2020). Patrick SW, Barfield WD, Poindexter BB."
+                url="https://publications.aap.org/pediatrics/article/146/5/e2020029074/39474/Neonatal-Opioid-Withdrawal-Syndrome"
+              />
+              <ReferenceLink
+                title="Eat, Sleep, Console Approach or Usual Care for Neonatal Opioid Withdrawal."
+                desc="The New England Journal of Medicine (2023). Young LW, Ounpraseuth ST, Merhar SL, et al."
+                url="https://www.nejm.org/doi/full/10.1056/NEJMoa2214470"
+              />
+              <ReferenceLink
+                title="Management of Newborns With In Utero Substance Exposure: AWHONN Practice Brief Number 18."
+                desc="Journal of Obstetric, Gynecologic, and Neonatal Nursing: JOGNN (2023)."
+                url="https://pubmed.ncbi.nlm.nih.gov/36906232/"
+              />
+              <ReferenceLink
+                title="Neonatal Abstinence Syndrome."
+                desc="The New England Journal of Medicine (2016). McQueen K, Murphy-Oikonen J."
+                url="https://www.nejm.org/doi/full/10.1056/NEJMra1600879"
+              />
+              <ReferenceLink
+                title="Opioid Treatment for Opioid Withdrawal in Newborn Infants."
+                desc="The Cochrane Database of Systematic Reviews (2021). Zankl A, Martin J, Davey JG, Osborn DA."
+                url="https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD002059.pub4/full"
+              />
+              <ReferenceLink
+                title="Buprenorphine for the Treatment of the Neonatal Abstinence Syndrome."
+                desc="The New England Journal of Medicine (2017). Kraft WK, Adeniyi-Jones SC, Chervoneva I, et al."
+                url="https://www.nejm.org/doi/full/10.1056/NEJMoa1614835"
+              />
+              <ReferenceLink
+                title="Childhood Health and Educational Outcomes After Neonatal Abstinence Syndrome: A Systematic Review and Meta-Analysis."
+                desc="The Journal of Pediatrics (2020). Rees P, Stilwell PA, Bolton C, et al."
+                url="https://www.jpeds.com/article/S0022-3476(20)30600-X/fulltext"
+              />
+              <ReferenceLink
+                title="Neurodevelopmental Outcomes of Prenatal Opioid Exposure and Neonatal Opioid Withdrawal Syndrome: A Systematic Review From Birth to Early Adulthood."
+                desc="Journal of Perinatology (2025). Rajaprakash M, West S, Jayakumar S, et al."
+                url="https://pubmed.ncbi.nlm.nih.gov/?term=Neurodevelopmental+Outcomes+of+Prenatal+Opioid+Exposure+and+Neonatal+Opioid+Withdrawal+Syndrome"
+              />
+              <ReferenceLink
+                title="Advances in the Care of Infants With Prenatal Opioid Exposure and Neonatal Opioid Withdrawal Syndrome."
+                desc="Pediatrics (2024). Mascarenhas M, Wachman EM, Chandra I, et al."
+                url="https://publications.aap.org/pediatrics/article/153/2/e2023063546/196395/Advances-in-the-Care-of-Infants-With-Prenatal"
+              />
             </div>
           </div>
         </div>
