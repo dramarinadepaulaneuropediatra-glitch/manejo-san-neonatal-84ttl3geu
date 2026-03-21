@@ -30,16 +30,21 @@ migrate(
     )
     if (cases.length > 0) {
       const case3 = cases[0]
-      const opts = case3.get('options') || {}
+      const rawOpts = case3.get('options')
+      const opts = rawOpts ? JSON.parse(JSON.stringify(rawOpts)) : {}
 
       if (opts.choices) {
         // Prevent duplication if migration is re-run
         if (!opts.choices.find((c) => c.id === 'metadona')) {
           opts.choices.push({ id: 'metadona', text: 'Metadona' })
         }
+      } else {
+        opts.choices = []
       }
 
-      if (!opts.feedback) opts.feedback = {}
+      if (!opts.feedback) {
+        opts.feedback = {}
+      }
 
       // Add feedback specific to Metadona
       opts.feedback.metadona =
@@ -75,7 +80,8 @@ migrate(
       )
       if (cases.length > 0) {
         const case3 = cases[0]
-        const opts = case3.get('options') || {}
+        const rawOpts = case3.get('options')
+        const opts = rawOpts ? JSON.parse(JSON.stringify(rawOpts)) : {}
 
         if (opts.choices) {
           opts.choices = opts.choices.filter((c) => c.id !== 'metadona')
