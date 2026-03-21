@@ -39,9 +39,9 @@ export default function Login() {
     setLoadingLogin(true)
     setErrors({})
 
-    if (password !== 'HJK2026') {
+    if (password !== 'HJK@2026') {
       setErrors({
-        password: 'A senha unificada para todos os usuários é HJK2026.',
+        password: 'A senha unificada para todos os usuários é HJK@2026.',
       })
       setLoadingLogin(false)
       return
@@ -72,9 +72,9 @@ export default function Login() {
     setLoadingLogin(true)
     setErrors({})
 
-    if (password !== 'HJK2026') {
+    if (password !== 'HJK@2026') {
       setErrors({
-        password: 'A senha unificada para registro e acesso é HJK2026.',
+        password: 'A senha unificada para registro e acesso é HJK@2026.',
       })
       setLoadingLogin(false)
       return
@@ -148,11 +148,11 @@ export default function Login() {
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Senha (HJK2026)</Label>
+                  <Label htmlFor="password">Senha (HJK@2026)</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder="HJK2026"
+                    placeholder="HJK@2026"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -195,15 +195,15 @@ export default function Login() {
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-password">Senha (HJK2026)</Label>
+                  <Label htmlFor="reg-password">Senha (HJK@2026)</Label>
                   <Input
                     id="reg-password"
                     type="password"
-                    placeholder="HJK2026"
+                    placeholder="HJK@2026"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={7}
+                    minLength={8}
                   />
                   {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
