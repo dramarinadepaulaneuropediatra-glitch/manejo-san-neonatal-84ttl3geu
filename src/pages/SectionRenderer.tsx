@@ -525,7 +525,8 @@ function renderStaticContent(order: number) {
             <p className="text-[15px] leading-relaxed text-foreground/80">
               O conteúdo deste curso, bem como as diretrizes de dosagem e protocolos de manejo
               farmacológico, foram embasados nas principais diretrizes internacionais e nacionais
-              listadas abaixo.
+              listadas abaixo. Todos os links são públicos ou direcionam aos artigos originais
+              peer-reviewed.
             </p>
 
             <div className="mt-5 p-4 bg-amber-50 border border-amber-200 rounded-lg flex gap-3 items-start text-amber-900 text-sm shadow-sm">
@@ -548,50 +549,46 @@ function renderStaticContent(order: number) {
                 <ReferenceLink
                   title="American Academy of Pediatrics (AAP)"
                   desc='Clinical Report: "Neonatal Opioid Withdrawal Syndrome" (2020).'
-                  url="https://publications.aap.org/pediatrics/article/146/5/e2020029074/33502/Neonatal-Opioid-Withdrawal-Syndrome"
+                  url="https://publications.aap.org/pediatrics/article/146/5/e2020029074/39474/Neonatal-Opioid-Withdrawal-Syndrome"
                 />
                 <ReferenceLink
-                  title="Sociedade Brasileira de Pediatria (SBP)"
-                  desc="Diretrizes sobre Cuidados Neonatais e Manejo da SAN (2021)."
-                  url="https://www.sbp.com.br/"
+                  title="Sociedade Brasileira de Pediatria (SBP) e SBN"
+                  desc='Documento Científico: "Síndrome de Abstinência Neonatal" (2021).'
+                  url="https://www.sbp.com.br/fileadmin/user_upload/21430b-DocCient_-_Sindrome_de_Abstinencia_Neonatal.pdf"
                 />
                 <ReferenceLink
-                  title="Sociedade Brasileira de Neonatologia (SBN)"
-                  desc="Protocolos de Suporte Intensivo Neonatal."
-                  url="https://www.sbneonatal.org.br/"
-                />
-                <ReferenceLink
-                  title="NICE Guidelines"
-                  desc="Neonatal infection and withdrawal protocols."
-                  url="https://www.nice.org.uk/"
+                  title="NICE Guidelines (UK)"
+                  desc="Pregnancy and complex social factors: Guidance on substance misuse protocols (CG110)."
+                  url="https://www.nice.org.uk/guidance/cg110"
                 />
               </div>
             </div>
 
             <div>
               <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <Microscope className="h-5 w-5 text-primary" /> Revistas Científicas (Journals)
+                <Microscope className="h-5 w-5 text-primary" /> Revistas Científicas (Buscas e
+                Protocolos)
               </h4>
               <div className="grid gap-4">
                 <ReferenceLink
                   title="The Lancet"
-                  desc="Pesquisas sobre manejo farmacológico vs não-farmacológico em resultados da SAN."
-                  url="https://www.thelancet.com/"
+                  desc="Pesquisas sobre eficácia do manejo farmacológico vs não-farmacológico na SAN."
+                  url="https://www.thelancet.com/action/doSearch?text1=neonatal+abstinence+syndrome"
                 />
                 <ReferenceLink
                   title="JAMA Pediatrics"
-                  desc="Tendências em terapias adjuvantes para abstinência severa."
-                  url="https://jamanetwork.com/journals/jamapediatrics"
+                  desc="Tendências em terapias adjuvantes e impacto epidemiológico das diretrizes ESC."
+                  url="https://jamanetwork.com/searchresults?q=neonatal%20abstinence%20syndrome&f_JournalDisplayName=JAMA+Pediatrics"
                 />
                 <ReferenceLink
                   title="Pediatrics"
-                  desc="Publicação oficial da AAP, com atualizações contínuas sobre neonatologia."
-                  url="https://publications.aap.org/pediatrics"
+                  desc="Publicação oficial da AAP, com atualizações contínuas sobre evidências neonatais."
+                  url="https://publications.aap.org/pediatrics/search-results?q=neonatal%20abstinence%20syndrome"
                 />
                 <ReferenceLink
                   title="Neurology"
-                  desc="Eficácia de Gabapentina e Clonidina como adjuvantes em casos refratários."
-                  url="https://n.neurology.org/"
+                  desc="Publicações sobre desfechos neurológicos e o uso de anticonvulsivantes off-label."
+                  url="https://n.neurology.org/search/neonatal%20abstinence%20syndrome"
                 />
               </div>
             </div>
