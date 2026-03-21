@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Search } from 'lucide-react'
+import { Search, BookOpen } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
 export function MedTable() {
@@ -65,7 +65,18 @@ export function MedTable() {
                 </TableCell>
                 <TableCell>
                   <div className="text-sm font-mono">{med.dose}</div>
-                  <div className="text-xs text-muted-foreground">{med.presentation}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{med.presentation}</div>
+                  {med.references && (
+                    <div className="mt-2 text-[11px] text-muted-foreground/90 flex gap-1 items-start bg-muted/40 p-2 rounded-md">
+                      <BookOpen className="h-3 w-3 shrink-0 mt-[1px] text-primary/60" />
+                      <span className="leading-snug">
+                        <span className="font-medium text-foreground/80 block mb-0.5">
+                          Referência:
+                        </span>
+                        {med.references}
+                      </span>
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <div className="text-sm">{med.safety_efficacy}</div>

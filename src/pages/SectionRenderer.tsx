@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom'
 import { getInteractionsBySection, markSectionComplete } from '@/services/api'
 import { Button } from '@/components/ui/button'
-import { ChevronRight, ChevronLeft } from 'lucide-react'
+import { ChevronRight, ChevronLeft, ExternalLink, BookOpen } from 'lucide-react'
 import { Icebreaker } from '@/components/interactions/Icebreaker'
 import { Quiz } from '@/components/interactions/Quiz'
 import { CriticalThinking } from '@/components/interactions/CriticalThinking'
@@ -483,6 +483,82 @@ function renderStaticContent(order: number) {
             </p>
           </div>
         </>
+      )
+    case 8:
+      return (
+        <div className="space-y-8 animate-fade-in-up">
+          <div className="bg-primary/5 border border-primary/20 p-6 rounded-xl">
+            <h3 className="text-xl font-bold text-primary flex items-center gap-2 mb-3">
+              <BookOpen className="h-6 w-6" />
+              Base Científica
+            </h3>
+            <p className="text-[15px] leading-relaxed text-foreground/80">
+              O conteúdo deste curso, bem como as diretrizes de dosagem e protocolos de manejo
+              farmacológico (como a transição para Morfina e Metadona), foram embasados nas
+              seguintes referências científicas e de saúde pública de alta autoridade:
+            </p>
+          </div>
+
+          <div className="grid gap-4">
+            <a
+              href="https://publications.aap.org/pediatrics/article/146/5/e2020029074/33502/Neonatal-Opioid-Withdrawal-Syndrome"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-card border rounded-xl hover:shadow-md transition-all hover:border-primary/50 group"
+            >
+              <div>
+                <h4 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
+                  American Academy of Pediatrics (AAP)
+                </h4>
+                <p className="text-sm text-muted-foreground mt-1">
+                  "Neonatal Opioid Withdrawal Syndrome" clinical reports (2020).
+                </p>
+              </div>
+              <div className="bg-primary/10 text-primary p-2 rounded-full shrink-0 self-start sm:self-center group-hover:bg-primary group-hover:text-white transition-colors">
+                <ExternalLink className="h-5 w-5" />
+              </div>
+            </a>
+
+            <a
+              href="https://www.sbp.com.br/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-card border rounded-xl hover:shadow-md transition-all hover:border-primary/50 group"
+            >
+              <div>
+                <h4 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
+                  Sociedade Brasileira de Pediatria (SBP)
+                </h4>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Diretrizes sobre Cuidados Neonatais e Manejo da SAN.
+                </p>
+              </div>
+              <div className="bg-primary/10 text-primary p-2 rounded-full shrink-0 self-start sm:self-center group-hover:bg-primary group-hover:text-white transition-colors">
+                <ExternalLink className="h-5 w-5" />
+              </div>
+            </a>
+
+            <a
+              href="https://www.who.int/publications/i/item/9789241548731"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-card border rounded-xl hover:shadow-md transition-all hover:border-primary/50 group"
+            >
+              <div>
+                <h4 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
+                  World Health Organization (WHO)
+                </h4>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Guidelines for the identification and management of substance use and substance
+                  use disorders in pregnancy (2014).
+                </p>
+              </div>
+              <div className="bg-primary/10 text-primary p-2 rounded-full shrink-0 self-start sm:self-center group-hover:bg-primary group-hover:text-white transition-colors">
+                <ExternalLink className="h-5 w-5" />
+              </div>
+            </a>
+          </div>
+        </div>
       )
     default:
       return null
