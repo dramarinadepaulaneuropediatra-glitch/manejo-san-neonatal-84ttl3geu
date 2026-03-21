@@ -24,7 +24,8 @@ export default function Login() {
 
     try {
       await pb.collection('users').authWithPassword(email, password)
-      navigate('/course')
+      // Redirect directly to Section 1 as per acceptance criteria
+      navigate('/course/1')
     } catch (err: any) {
       setErrors(extractFieldErrors(err))
       toast({
