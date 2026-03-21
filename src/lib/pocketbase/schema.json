@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-21T00:50:17.792Z",
+  "generatedAt": "2026-03-21T01:23:20.619Z",
   "collections": [
     {
       "name": "users",
@@ -245,6 +245,24 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "initial_dose",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "maintenance_dose",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "references",
+          "type": "text",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": []

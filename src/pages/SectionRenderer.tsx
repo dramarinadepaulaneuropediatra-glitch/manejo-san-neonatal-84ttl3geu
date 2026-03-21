@@ -2,7 +2,15 @@ import { useEffect, useState, useMemo } from 'react'
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom'
 import { getInteractionsBySection, markSectionComplete } from '@/services/api'
 import { Button } from '@/components/ui/button'
-import { ChevronRight, ChevronLeft, ExternalLink, BookOpen, AlertTriangle } from 'lucide-react'
+import {
+  ChevronRight,
+  ChevronLeft,
+  ExternalLink,
+  BookOpen,
+  AlertTriangle,
+  Library,
+  Microscope,
+} from 'lucide-react'
 import { Icebreaker } from '@/components/interactions/Icebreaker'
 import { Quiz } from '@/components/interactions/Quiz'
 import { CriticalThinking } from '@/components/interactions/CriticalThinking'
@@ -512,54 +520,81 @@ function renderStaticContent(order: number) {
           <div className="bg-primary/5 border border-primary/20 p-6 rounded-xl shadow-sm">
             <h3 className="text-xl font-bold text-primary flex items-center gap-2 mb-3">
               <BookOpen className="h-6 w-6" />
-              Central de Referências Bibliográficas
+              8. Referências Bibliográficas e Links de Acesso Sugeridos (Validação)
             </h3>
             <p className="text-[15px] leading-relaxed text-foreground/80">
               O conteúdo deste curso, bem como as diretrizes de dosagem e protocolos de manejo
-              farmacológico, foram embasados nas principais diretrizes internacionais e nacionais:
+              farmacológico, foram embasados nas principais diretrizes internacionais e nacionais
+              listadas abaixo.
             </p>
 
             <div className="mt-5 p-4 bg-amber-50 border border-amber-200 rounded-lg flex gap-3 items-start text-amber-900 text-sm shadow-sm">
               <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
               <p className="leading-relaxed">
-                <strong>Aviso Obrigatório:</strong> Consulte sempre as fontes originais para
-                confirmação de doses e protocolos atualizados. A prática neonatológica baseada em
-                evidências evolui constantemente.
+                <strong>Aviso Obrigatório:</strong> Consulte as fontes originais para doses e
+                protocolos atualizados. A prática neonatológica baseada em evidências evolui
+                constantemente.
               </p>
             </div>
           </div>
 
-          <div className="grid gap-4">
-            <ReferenceLink
-              title="American Academy of Pediatrics (AAP)"
-              desc='Clinical Report: "Neonatal Opioid Withdrawal Syndrome" (2020).'
-              url="https://publications.aap.org/pediatrics/article/146/5/e2020029074/33502/Neonatal-Opioid-Withdrawal-Syndrome"
-            />
-            <ReferenceLink
-              title="Sociedade Brasileira de Pediatria (SBP)"
-              desc="Diretrizes sobre Cuidados Neonatais e Manejo da SAN (2021)."
-              url="https://www.sbp.com.br/"
-            />
-            <ReferenceLink
-              title="NICE Guidelines"
-              desc="Neonatal infection and withdrawal protocols."
-              url="https://www.nice.org.uk/"
-            />
-            <ReferenceLink
-              title="The Lancet"
-              desc="Pharmacological vs non-pharmacological management in SAN outcomes."
-              url="https://www.thelancet.com/"
-            />
-            <ReferenceLink
-              title="JAMA Pediatrics"
-              desc="Trends in adjunctive therapies for severe withdrawal."
-              url="https://jamanetwork.com/journals/jamapediatrics"
-            />
-            <ReferenceLink
-              title="Neurology"
-              desc="Efficacy of Gabapentin and Clonidine as adjuvants in refractory cases."
-              url="https://n.neurology.org/"
-            />
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <Library className="h-5 w-5 text-primary" /> Diretrizes e Sociedades Médicas
+                (Guidelines)
+              </h4>
+              <div className="grid gap-4">
+                <ReferenceLink
+                  title="American Academy of Pediatrics (AAP)"
+                  desc='Clinical Report: "Neonatal Opioid Withdrawal Syndrome" (2020).'
+                  url="https://publications.aap.org/pediatrics/article/146/5/e2020029074/33502/Neonatal-Opioid-Withdrawal-Syndrome"
+                />
+                <ReferenceLink
+                  title="Sociedade Brasileira de Pediatria (SBP)"
+                  desc="Diretrizes sobre Cuidados Neonatais e Manejo da SAN (2021)."
+                  url="https://www.sbp.com.br/"
+                />
+                <ReferenceLink
+                  title="Sociedade Brasileira de Neonatologia (SBN)"
+                  desc="Protocolos de Suporte Intensivo Neonatal."
+                  url="https://www.sbneonatal.org.br/"
+                />
+                <ReferenceLink
+                  title="NICE Guidelines"
+                  desc="Neonatal infection and withdrawal protocols."
+                  url="https://www.nice.org.uk/"
+                />
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <Microscope className="h-5 w-5 text-primary" /> Revistas Científicas (Journals)
+              </h4>
+              <div className="grid gap-4">
+                <ReferenceLink
+                  title="The Lancet"
+                  desc="Pesquisas sobre manejo farmacológico vs não-farmacológico em resultados da SAN."
+                  url="https://www.thelancet.com/"
+                />
+                <ReferenceLink
+                  title="JAMA Pediatrics"
+                  desc="Tendências em terapias adjuvantes para abstinência severa."
+                  url="https://jamanetwork.com/journals/jamapediatrics"
+                />
+                <ReferenceLink
+                  title="Pediatrics"
+                  desc="Publicação oficial da AAP, com atualizações contínuas sobre neonatologia."
+                  url="https://publications.aap.org/pediatrics"
+                />
+                <ReferenceLink
+                  title="Neurology"
+                  desc="Eficácia de Gabapentina e Clonidina como adjuvantes em casos refratários."
+                  url="https://n.neurology.org/"
+                />
+              </div>
+            </div>
           </div>
         </div>
       )
