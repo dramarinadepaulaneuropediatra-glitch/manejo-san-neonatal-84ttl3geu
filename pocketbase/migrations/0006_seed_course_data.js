@@ -81,7 +81,7 @@ migrate(
 
     // Wipe existing meds to ensure exact desired state
     try {
-      const oldMeds = app.findRecordsByFilter('medications', '1=1', '', 100, 0)
+      const oldMeds = app.findRecordsByFilter('medications', '', '', 100, 0)
       oldMeds.forEach((m) => app.delete(m))
     } catch (e) {}
 
@@ -89,11 +89,11 @@ migrate(
       const rec = new Record(medsCol)
       rec.set('name', m.name)
       rec.set('indication', m.indication)
-      rec.set('initial_dose', m.initial_dose)
-      rec.set('maintenance_dose', m.maintenance_dose)
-      rec.set('presentation', m.presentation)
-      rec.set('safety_efficacy', m.safety_efficacy)
-      rec.set('references', m.references)
+      rec.set('initial_dose', m.initial_dose || '')
+      rec.set('maintenance_dose', m.maintenance_dose || '')
+      rec.set('presentation', m.presentation || '')
+      rec.set('safety_efficacy', m.safety_efficacy || '')
+      rec.set('references', m.references || '')
       app.save(rec)
     })
 
@@ -102,11 +102,11 @@ migrate(
 
     // Wipe existing interactions to ensure exact desired state
     try {
-      const oldInts = app.findRecordsByFilter('interactions', '1=1', '', 100, 0)
+      const oldInts = app.findRecordsByFilter('interactions', '', '', 100, 0)
       oldInts.forEach((i) => app.delete(i))
     } catch (e) {}
 
-    const sections = app.findRecordsByFilter('sections', '1=1', 'order', 100, 0)
+    const sections = app.findRecordsByFilter('sections', '', 'order', 100, 0)
     const s1 = sections.find((s) => s.get('order') === 1)
     const s2 = sections.find((s) => s.get('order') === 2)
     const s3 = sections.find((s) => s.get('order') === 3)
