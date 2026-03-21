@@ -26,10 +26,26 @@ export default function Login() {
     }
   }, [user, loading, navigate])
 
+  const validateEmailDomain = (emailToValidate: string) => {
+    const emailLower = emailToValidate.toLowerCase()
+    return (
+      emailLower === 'dramarinadepaulaneuropediatra@gmail.com' ||
+      emailLower.endsWith('@hospitalhjk.com.br')
+    )
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoadingLogin(true)
     setErrors({})
+
+    if (!validateEmailDomain(email)) {
+      setErrors({
+        email: 'Acesso restrito: Por favor, utilize seu e-mail institucional @hospitalhjk.com.br',
+      })
+      setLoadingLogin(false)
+      return
+    }
 
     const { error } = await signIn(email, password)
     if (error) {
@@ -47,6 +63,14 @@ export default function Login() {
     e.preventDefault()
     setLoadingLogin(true)
     setErrors({})
+
+    if (!validateEmailDomain(email)) {
+      setErrors({
+        email: 'Acesso restrito: Por favor, utilize seu e-mail institucional @hospitalhjk.com.br',
+      })
+      setLoadingLogin(false)
+      return
+    }
 
     const { error } = await signUp({ email, password, name })
     if (error) {
@@ -100,7 +124,7 @@ export default function Login() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="nome@hospital.com"
+                    placeholder="nome@hospitalhjk.com.br"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -108,10 +132,11 @@ export default function Login() {
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Senha</Label>
+                  <Label htmlFor="password">Senha (MASP)</Label>
                   <Input
                     id="password"
                     type="password"
+                    placeholder="Digite seu MASP"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -146,7 +171,7 @@ export default function Login() {
                   <Input
                     id="reg-email"
                     type="email"
-                    placeholder="nome@hospital.com"
+                    placeholder="nome@hospitalhjk.com.br"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -154,11 +179,11 @@ export default function Login() {
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-password">Senha</Label>
+                  <Label htmlFor="reg-password">Senha (MASP)</Label>
                   <Input
                     id="reg-password"
                     type="password"
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder="Digite seu MASP"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -174,7 +199,7 @@ export default function Login() {
           </Tabs>
 
           <div className="mt-6 text-center text-sm text-muted-foreground border-t pt-6">
-            <p>Acesso restrito a profissionais de saúde.</p>
+            <p>Acesso restrito à equipe do HJK.</p>
             <p className="mt-2 text-xs opacity-70">
               Admin: dramarinadepaulaneuropediatra@gmail.com
             </p>
