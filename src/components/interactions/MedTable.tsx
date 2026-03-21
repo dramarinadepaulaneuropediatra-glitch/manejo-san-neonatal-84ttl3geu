@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { getMedications } from '@/services/api'
 import { Input } from '@/components/ui/input'
 import {
@@ -83,8 +84,15 @@ export function MedTable() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm font-mono leading-relaxed text-slate-800">
+                    <div className="text-sm font-mono leading-relaxed text-slate-800 flex items-center gap-2">
                       {med.initial_dose || med.dose}
+                      <Link
+                        to="/course/8"
+                        className="text-[10px] text-primary/70 hover:text-primary hover:underline transition-colors"
+                        title="Ver Referências no Módulo 8"
+                      >
+                        [Ref]
+                      </Link>
                     </div>
                     <div className="text-[11px] text-muted-foreground mt-1.5 uppercase tracking-wide">
                       Apresentação:{' '}

@@ -566,10 +566,14 @@ function renderStaticContent(order: number) {
 
             <div>
               <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <Microscope className="h-5 w-5 text-primary" /> Revistas Científicas (Buscas e
-                Protocolos)
+                <Microscope className="h-5 w-5 text-primary" /> Bases de Evidência e Pesquisa
               </h4>
               <div className="grid gap-4">
+                <ReferenceLink
+                  title="OpenEvidence (Neofax Alternative)"
+                  desc="Busca direta sobre evidências clínicas e farmacologia em SAN (Morphine/Methadone)."
+                  url="https://www.openevidence.com/search?q=neonatal+abstinence+syndrome+morphine"
+                />
                 <ReferenceLink
                   title="The Lancet"
                   desc="Pesquisas sobre eficácia do manejo farmacológico vs não-farmacológico na SAN."
@@ -579,16 +583,6 @@ function renderStaticContent(order: number) {
                   title="JAMA Pediatrics"
                   desc="Tendências em terapias adjuvantes e impacto epidemiológico das diretrizes ESC."
                   url="https://jamanetwork.com/searchresults?q=neonatal%20abstinence%20syndrome&f_JournalDisplayName=JAMA+Pediatrics"
-                />
-                <ReferenceLink
-                  title="Pediatrics"
-                  desc="Publicação oficial da AAP, com atualizações contínuas sobre evidências neonatais."
-                  url="https://publications.aap.org/pediatrics/search-results?q=neonatal%20abstinence%20syndrome"
-                />
-                <ReferenceLink
-                  title="Neurology"
-                  desc="Publicações sobre desfechos neurológicos e o uso de anticonvulsivantes off-label."
-                  url="https://n.neurology.org/search/neonatal%20abstinence%20syndrome"
                 />
               </div>
             </div>

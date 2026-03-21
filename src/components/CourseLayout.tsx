@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/sidebar'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { LogOut, BookOpen, CheckCircle2, Circle, GraduationCap } from 'lucide-react'
+import { LogOut, BookOpen, CheckCircle2, Circle, GraduationCap, ShieldAlert } from 'lucide-react'
 
 export default function CourseLayout() {
   const { user, signOut } = useAuth()
@@ -77,6 +77,26 @@ export default function CourseLayout() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+
+              {user.email === 'dramarinadepaulaneuropediatra@gmail.com' && (
+                <div className="my-2 px-4">
+                  <div className="text-[11px] uppercase tracking-wider font-bold text-indigo-600 mb-3 mt-4">
+                    Administração
+                  </div>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/course/admin'}>
+                      <Link
+                        to="/course/admin"
+                        className="flex items-center w-full gap-2 font-medium text-indigo-700"
+                      >
+                        <ShieldAlert className="h-4 w-4" />
+                        <span className="truncate pr-2">Painel da Equipe</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </div>
+              )}
+
               <div className="my-6 px-4">
                 <div className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground mb-3">
                   Conteúdo Programático
@@ -155,7 +175,7 @@ export default function CourseLayout() {
 
           <main className="flex-1 overflow-auto bg-muted/10 p-6 md:p-10 custom-scrollbar">
             <div className="mx-auto w-full animate-fade-in-up">
-              <Outlet context={{ sections }} />
+              <Outlet context={{ sections, progressIds }} />
             </div>
           </main>
         </div>

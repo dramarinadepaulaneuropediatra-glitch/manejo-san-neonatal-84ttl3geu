@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-03-21T01:32:18.667Z",
+  "generatedAt": "2026-03-21T01:45:11.446Z",
   "collections": [
     {
       "name": "users",
       "type": "auth",
       "apiRules": {
-        "list": "id = @request.auth.id",
-        "view": "id = @request.auth.id",
+        "list": "id = @request.auth.id || @request.auth.email = 'dramarinadepaulaneuropediatra@gmail.com'",
+        "view": "id = @request.auth.id || @request.auth.email = 'dramarinadepaulaneuropediatra@gmail.com'",
         "create": "",
         "update": "id = @request.auth.id",
         "delete": "id = @request.auth.id"
@@ -271,8 +271,8 @@
       "name": "progress",
       "type": "base",
       "apiRules": {
-        "list": "@request.auth.id != '' && user_id = @request.auth.id",
-        "view": "@request.auth.id != '' && user_id = @request.auth.id",
+        "list": "@request.auth.id != '' && (user_id = @request.auth.id || @request.auth.email = 'dramarinadepaulaneuropediatra@gmail.com')",
+        "view": "@request.auth.id != '' && (user_id = @request.auth.id || @request.auth.email = 'dramarinadepaulaneuropediatra@gmail.com')",
         "create": "@request.auth.id != ''",
         "update": "@request.auth.id != '' && user_id = @request.auth.id",
         "delete": "@request.auth.id != '' && user_id = @request.auth.id"

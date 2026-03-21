@@ -1,9 +1,24 @@
-import { Link } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Brain, HeartPulse, Stethoscope, Pill, Baby } from 'lucide-react'
 
 export default function CourseOverview() {
+  const { sections, progressIds } = useOutletContext<{ sections: any[]; progressIds: string[] }>()
+
+  const nextSection = sections?.find((s) => !progressIds?.includes(s.id))
+  const nextOrder = nextSection ? nextSection.order : 1
+  const isCompleted = sections?.length > 0 && progressIds?.length === sections.length
+
+  const buttonText =
+    progressIds?.length === 0
+      ? 'Iniciar Curso'
+      : isCompleted
+        ? 'Revisar Curso (Gabarito)'
+        : `Continuar Curso (Módulo ${nextOrder})`
+
+  const targetLink = isCompleted ? '/course/gabarito' : `/course/${nextOrder}`
+
   return (
     <div className="space-y-8 pb-10">
       <div className="bg-primary/5 rounded-2xl p-8 border border-primary/10 text-center space-y-4">
@@ -14,8 +29,12 @@ export default function CourseOverview() {
           Manejo Baseado em Evidências no CTI Neonatal
         </p>
         <div className="pt-6">
-          <Button asChild size="lg" className="rounded-full px-8 text-lg h-12 shadow-md">
-            <Link to="/course/1">Iniciar Curso</Link>
+          <Button
+            asChild
+            size="lg"
+            className="rounded-full px-8 text-lg h-12 shadow-md hover:scale-105 transition-transform"
+          >
+            <Link to={targetLink}>{buttonText}</Link>
           </Button>
         </div>
       </div>
