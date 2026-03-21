@@ -3,8 +3,7 @@ migrate(
     try {
       const col = app.findCollectionByNameOrId('medications')
 
-      // Check if Metadona already exists to avoid duplicates
-      let existing = []
+      let existing = null
       try {
         existing = app.findRecordsByFilter('medications', "name='Metadona'", '', 1, 0)
       } catch (e) {
@@ -28,19 +27,23 @@ migrate(
         app.save(record)
       }
     } catch (err) {
-      console.log('Error in 0005 up:', err.message)
+      console.log('Error in 0005 up:', String(err))
     }
   },
   (app) => {
     try {
-      const existing = app.findRecordsByFilter('medications', "name='Metadona'", '', 10, 0)
-      if (existing && existing.length > 0) {
-        for (const record of existing) {
-          app.delete(record)
+      let existing = null
+      try {
+        existing = app.findRecordsByFilter('medications', "name='Metadona'", '', 10, 0)
+      } catch (e) {}
+
+      if (existing) {
+        for (let i = 0; i < existing.length; i++) {
+          app.delete(existing[i])
         }
       }
     } catch (err) {
-      console.log('Error in 0005 down:', err.message)
+      console.log('Error in 0005 down:', String(err))
     }
   },
 )

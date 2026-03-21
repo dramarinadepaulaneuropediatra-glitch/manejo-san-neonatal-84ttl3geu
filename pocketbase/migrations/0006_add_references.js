@@ -8,18 +8,25 @@ migrate(
         app.save(medsCol)
       }
     } catch (e) {
-      console.log('Error adding references field:', e.message)
+      console.log('Error adding references field:', String(e))
     }
 
     // 2. Add References section
     try {
       const sectionsCol = app.findCollectionByNameOrId('sections')
-      const refSection = new Record(sectionsCol)
-      refSection.set('title', 'Referências Bibliográficas')
-      refSection.set('order', 8)
-      app.save(refSection)
+      let refs = null
+      try {
+        refs = app.findRecordsByFilter('sections', 'order = 8', '', 1, 0)
+      } catch (e) {}
+
+      if (!refs || refs.length === 0) {
+        const refSection = new Record(sectionsCol)
+        refSection.set('title', 'Referências Bibliográficas')
+        refSection.set('order', 8)
+        app.save(refSection)
+      }
     } catch (e) {
-      console.log('Error adding References section:', e.message)
+      console.log('Error adding References section:', String(e))
     }
 
     // 3. Seed references for existing medications
@@ -31,22 +38,39 @@ migrate(
         Clonidina: 'AAP (2020) Clinical Report: Neonatal Opioid Withdrawal Syndrome.',
       }
 
-      const meds = app.findRecordsByFilter('medications', '', '', 100, 0)
-      for (const med of meds) {
-        const name = med.get('name')
-        if (refsMap[name]) {
-          med.set('references', refsMap[name])
-          app.save(med)
+      let meds = null
+      try {
+        meds = app.findRecordsByFilter('medications', '', '', 100, 0)
+      } catch (e) {}
+
+      if (meds) {
+        for (let i = 0; i < meds.length; i++) {
+          const med = meds[i]
+          if (!med) continue
+
+          const name = med.get('name')
+          if (refsMap[name]) {
+            med.set('references', refsMap[name])
+            app.save(med)
+          }
         }
       }
     } catch (e) {
-      console.log('Error updating medication references:', e.message)
+      console.log('Error updating medication references:', String(e))
     }
   },
   (app) => {
     try {
-      const refs = app.findRecordsByFilter('sections', 'order = 8', '', 1, 0)
-      if (refs && refs.length > 0) app.delete(refs[0])
+      let refs = null
+      try {
+        refs = app.findRecordsByFilter('sections', 'order = 8', '', 1, 0)
+      } catch (e) {}
+
+      if (refs) {
+        for (let i = 0; i < refs.length; i++) {
+          app.delete(refs[i])
+        }
+      }
     } catch (e) {}
 
     try {
