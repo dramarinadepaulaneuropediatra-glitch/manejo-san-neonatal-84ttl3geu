@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-25T00:33:03.218Z",
+  "generatedAt": "2026-03-25T00:39:21.814Z",
   "collections": [
     {
       "name": "users",
@@ -141,8 +141,8 @@
       "name": "responses",
       "type": "base",
       "apiRules": {
-        "list": "@request.auth.id != ''",
-        "view": "@request.auth.id != ''",
+        "list": "user_id = @request.auth.id || @request.auth.email = 'dramarinadepaulaneuropediatra@gmail.com'",
+        "view": "user_id = @request.auth.id || @request.auth.email = 'dramarinadepaulaneuropediatra@gmail.com'",
         "create": "@request.auth.id != ''",
         "update": "@request.auth.id != '' && user_id = @request.auth.id",
         "delete": "@request.auth.id != '' && user_id = @request.auth.id"
