@@ -249,8 +249,11 @@ function renderStaticContent(order: number) {
       return (
         <>
           <p className="text-xl font-medium text-slate-700">
-            A Síndrome de Abstinência Neonatal (SAN) é um conjunto complexo de sinais e sintomas
-            experimentados por recém-nascidos expostos a substâncias viciantes durante a gestação.
+            A síndrome de abstinência neonatal (SAN) é definida como uma síndrome de retirada de
+            drogas que ocorre em neonatos após exposição crônica a opioides e outras substâncias,
+            seja por exposição intrauterina (através do uso materno durante a gestação) ou por
+            exposição iatrogênica pós-natal (através de sedoanalgesia administrada após o nascimento
+            durante hospitalização).
           </p>
           <img
             src="https://img.usecurling.com/p/800/400?q=newborn%20hospital&color=blue"
