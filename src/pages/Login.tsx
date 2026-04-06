@@ -37,7 +37,7 @@ export default function Login() {
     setLoadingLogin(true)
     setErrors({})
 
-    if (password !== 'HJK2026' && identifier !== 'dramarinadepaulaneuropediatra@gmail.com') {
+    if (password !== 'HJK2026') {
       setErrors({ password: 'A senha unificada para todos os usuários é HJK2026.' })
       setLoadingLogin(false)
       return
@@ -134,7 +134,7 @@ export default function Login() {
                 className="space-y-4 animate-in fade-in zoom-in-95 duration-200"
               >
                 <div className="space-y-2">
-                  <Label htmlFor="identifier">MASP (ou Email Admin)</Label>
+                  <Label htmlFor="identifier">MASP / Email</Label>
                   <Input
                     id="identifier"
                     type="text"
@@ -227,9 +227,6 @@ export default function Login() {
 
           <div className="mt-6 text-center text-sm text-muted-foreground border-t pt-6">
             <p>Acesso restrito à equipe autorizada do CTI Neonatal.</p>
-            <p className="mt-2 text-xs opacity-70">
-              Admin: dramarinadepaulaneuropediatra@gmail.com
-            </p>
           </div>
         </CardContent>
       </Card>
