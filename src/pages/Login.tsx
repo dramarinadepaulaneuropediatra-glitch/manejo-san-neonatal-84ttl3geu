@@ -9,11 +9,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Stethoscope } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import pb from '@/lib/pocketbase/client'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
+  const [identifier, setIdentifier] = useState('') // MASP or admin email
+  const [password, setPassword] = useState('HJK2026') // Standard password
+
+  // Register fields
+  const [regMasp, setRegMasp] = useState('')
+  const [regEmail, setRegEmail] = useState('')
+  const [regName, setRegName] = useState('')
+
   const [loadingLogin, setLoadingLogin] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const navigate = useNavigate()
@@ -26,41 +32,23 @@ export default function Login() {
     }
   }, [user, loading, navigate])
 
-  const validateEmailDomain = (emailToValidate: string) => {
-    const emailLower = emailToValidate.toLowerCase()
-    return (
-      emailLower === 'dramarinadepaulaneuropediatra@gmail.com' ||
-      emailLower.endsWith('@hospitalhjk.com.br')
-    )
-  }
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoadingLogin(true)
     setErrors({})
 
-    if (password !== 'HJK@2026') {
-      setErrors({
-        password: 'A senha unificada para todos os usuários é HJK@2026.',
-      })
+    if (password !== 'HJK2026' && identifier !== 'dramarinadepaulaneuropediatra@gmail.com') {
+      setErrors({ password: 'A senha unificada para todos os usuários é HJK2026.' })
       setLoadingLogin(false)
       return
     }
 
-    if (!validateEmailDomain(email)) {
-      setErrors({
-        email: 'Acesso restrito: Por favor, utilize seu e-mail institucional @hospitalhjk.com.br',
-      })
-      setLoadingLogin(false)
-      return
-    }
-
-    const { error } = await signIn(email, password)
+    const { error } = await signIn(identifier, password)
     if (error) {
       setErrors(extractFieldErrors(error))
       toast({
         title: 'Erro no login',
-        description: 'Credenciais inválidas. Verifique seus dados e tente novamente.',
+        description: 'Credenciais inválidas. Verifique seu MASP/Email.',
         variant: 'destructive',
       })
     }
@@ -72,25 +60,35 @@ export default function Login() {
     setLoadingLogin(true)
     setErrors({})
 
-    if (password !== 'HJK@2026') {
-      setErrors({
-        password: 'A senha unificada para registro e acesso é HJK@2026.',
-      })
+    if (password !== 'HJK2026') {
+      setErrors({ password: 'A senha unificada para registro e acesso é HJK2026.' })
       setLoadingLogin(false)
       return
     }
 
-    if (!validateEmailDomain(email)) {
-      setErrors({
-        email: 'Acesso restrito: Por favor, utilize seu e-mail institucional @hospitalhjk.com.br',
-      })
-      setLoadingLogin(false)
-      return
+    if (regEmail !== 'dramarinadepaulaneuropediatra@gmail.com') {
+      try {
+        await pb.collection('masp_whitelist').getFirstListItem(`masp="${regMasp}"`)
+      } catch {
+        setErrors({ regMasp: 'MASP não autorizado. Acesso restrito à equipe treinada.' })
+        setLoadingLogin(false)
+        return
+      }
     }
 
-    const { error } = await signUp({ email, password, name })
+    const { error } = await signUp({
+      email: regEmail,
+      password,
+      name: regName,
+      masp: regMasp,
+      username: regMasp,
+    })
+
     if (error) {
-      setErrors(extractFieldErrors(error))
+      const fieldErrors = extractFieldErrors(error)
+      if (fieldErrors.username) fieldErrors.regMasp = fieldErrors.username
+      if (fieldErrors.email) fieldErrors.regEmail = fieldErrors.email
+      setErrors(fieldErrors)
       toast({
         title: 'Erro no cadastro',
         description: 'Verifique os dados e tente novamente.',
@@ -126,7 +124,7 @@ export default function Login() {
         <CardContent>
           <Tabs defaultValue="login" className="w-full" onValueChange={() => setErrors({})}>
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="login">Entrar</TabsTrigger>
               <TabsTrigger value="register">Cadastrar</TabsTrigger>
             </TabsList>
 
@@ -136,31 +134,35 @@ export default function Login() {
                 className="space-y-4 animate-in fade-in zoom-in-95 duration-200"
               >
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Institucional</Label>
+                  <Label htmlFor="identifier">MASP (ou Email Admin)</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="nome@hospitalhjk.com.br"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="identifier"
+                    type="text"
+                    placeholder="Seu número MASP"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     required
                   />
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  {errors.identifier && (
+                    <p className="text-sm text-destructive">{errors.identifier}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Senha (HJK@2026)</Label>
+                  <Label htmlFor="password">Senha Unificada</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder="HJK@2026"
+                    placeholder="HJK2026"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    readOnly
+                    className="bg-muted/50 cursor-not-allowed text-muted-foreground"
                   />
                   {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
                 <Button type="submit" className="w-full" disabled={loadingLogin}>
-                  {loadingLogin ? 'Entrando...' : 'Acessar Curso'}
+                  {loadingLogin ? 'Acessando...' : 'Entrar no Curso'}
                 </Button>
               </form>
             </TabsContent>
@@ -171,51 +173,60 @@ export default function Login() {
                 className="space-y-4 animate-in fade-in zoom-in-95 duration-200"
               >
                 <div className="space-y-2">
+                  <Label htmlFor="reg-masp">MASP</Label>
+                  <Input
+                    id="reg-masp"
+                    type="text"
+                    placeholder="Número MASP"
+                    value={regMasp}
+                    onChange={(e) => setRegMasp(e.target.value)}
+                    required
+                  />
+                  {errors.regMasp && <p className="text-sm text-destructive">{errors.regMasp}</p>}
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="reg-name">Nome Completo</Label>
                   <Input
                     id="reg-name"
                     type="text"
-                    placeholder="Seu nome"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Nome que sairá no certificado"
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
                     required
                   />
                   {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-email">Email Institucional</Label>
+                  <Label htmlFor="reg-email">Email Pessoal ou Institucional</Label>
                   <Input
                     id="reg-email"
                     type="email"
-                    placeholder="nome@hospitalhjk.com.br"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="nome@email.com"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
                     required
                   />
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  {errors.regEmail && <p className="text-sm text-destructive">{errors.regEmail}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-password">Senha (HJK@2026)</Label>
+                  <Label htmlFor="reg-password">Senha</Label>
                   <Input
                     id="reg-password"
                     type="password"
-                    placeholder="HJK@2026"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={8}
+                    readOnly
+                    className="bg-muted/50 cursor-not-allowed text-muted-foreground"
                   />
-                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
                 <Button type="submit" className="w-full" disabled={loadingLogin}>
-                  {loadingLogin ? 'Cadastrando...' : 'Criar Conta'}
+                  {loadingLogin ? 'Verificando MASP...' : 'Criar Cadastro'}
                 </Button>
               </form>
             </TabsContent>
           </Tabs>
 
           <div className="mt-6 text-center text-sm text-muted-foreground border-t pt-6">
-            <p>Acesso restrito à equipe do HJK.</p>
+            <p>Acesso restrito à equipe autorizada do CTI Neonatal.</p>
             <p className="mt-2 text-xs opacity-70">
               Admin: dramarinadepaulaneuropediatra@gmail.com
             </p>

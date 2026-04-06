@@ -10,6 +10,7 @@ import CourseOverview from './pages/CourseOverview'
 import SectionRenderer from './pages/SectionRenderer'
 import Gabarito from './pages/Gabarito'
 import AdminDashboard from './pages/AdminDashboard'
+import Certificate from './pages/Certificate'
 import NotFound from './pages/NotFound'
 
 const RootRedirect = () => {
@@ -42,6 +43,7 @@ const App = () => (
               <Route index element={<CourseOverview />} />
               <Route path="admin" element={<AdminDashboard />} />
               <Route path="gabarito" element={<Gabarito />} />
+              <Route path="certificate" element={<Certificate />} />
               <Route path=":id" element={<SectionRenderer />} />
             </Route>
           </Route>

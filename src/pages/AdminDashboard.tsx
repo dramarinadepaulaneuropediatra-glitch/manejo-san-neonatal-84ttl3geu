@@ -226,6 +226,7 @@ export default function AdminDashboard() {
               <TableRow>
                 <TableHead>Profissional</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead className="w-[130px]">Status</TableHead>
                 <TableHead className="w-[150px]">Progresso Geral</TableHead>
                 <TableHead>Módulos Concluídos</TableHead>
                 <TableHead className="text-right">Avaliações</TableHead>
@@ -239,6 +240,16 @@ export default function AdminDashboard() {
                 const comp = userProgress.length
                 const perc =
                   data.sections.length > 0 ? Math.round((comp / data.sections.length) * 100) : 0
+
+                let status = 'Não Iniciado'
+                let statusColor = 'text-slate-500 bg-slate-100'
+                if (comp === data.sections.length && data.sections.length > 0) {
+                  status = 'Concluído'
+                  statusColor = 'text-emerald-700 bg-emerald-100'
+                } else if (comp > 0) {
+                  status = 'Em Andamento'
+                  statusColor = 'text-amber-700 bg-amber-100'
+                }
 
                 const userResponses = data.responses.filter((r: any) => r.user_id === u.id)
                 const userQuizResponses = userResponses.filter((r: any) =>
@@ -258,7 +269,17 @@ export default function AdminDashboard() {
                     <TableCell className="font-medium text-slate-800">
                       {u.name || 'Usuário Sem Nome'}
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{u.email}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {u.email}
+                      {u.masp && (
+                        <div className="text-xs text-slate-400 mt-0.5">MASP: {u.masp}</div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}>
+                        {status}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center justify-between text-xs font-bold text-slate-600">

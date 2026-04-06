@@ -1,7 +1,7 @@
 import { Link, useOutletContext } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Brain, HeartPulse, Stethoscope, Pill, Baby } from 'lucide-react'
+import { Brain, HeartPulse, Stethoscope, Pill, Baby, Award } from 'lucide-react'
 
 export default function CourseOverview() {
   const { sections, progressIds } = useOutletContext<{ sections: any[]; progressIds: string[] }>()
@@ -28,7 +28,7 @@ export default function CourseOverview() {
         <p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
           Manejo Baseado em Evidências no CTI Neonatal
         </p>
-        <div className="pt-6">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button
             asChild
             size="lg"
@@ -36,6 +36,20 @@ export default function CourseOverview() {
           >
             <Link to={targetLink}>{buttonText}</Link>
           </Button>
+
+          {isCompleted && (
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="rounded-full px-8 text-lg h-12 shadow-sm hover:scale-105 transition-transform border-primary/20 text-primary hover:bg-primary/5"
+            >
+              <Link to="/course/certificate">
+                <Award className="mr-2 h-5 w-5" />
+                Emitir Certificado
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 

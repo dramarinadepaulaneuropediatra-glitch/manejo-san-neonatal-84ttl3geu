@@ -33,17 +33,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (data: any) => {
     try {
-      await pb.collection('users').create({ ...data, passwordConfirm: data.password })
-      await pb.collection('users').authWithPassword(data.email, data.password)
+      const payload = { ...data, passwordConfirm: data.password }
+      if (data.masp && !data.username) {
+        payload.username = data.masp
+      }
+
+      await pb.collection('users').create(payload)
+      const identifier = payload.username || payload.email
+      await pb.collection('users').authWithPassword(identifier, data.password)
       return { error: null }
     } catch (error) {
       return { error }
     }
   }
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (identifier: string, password: string) => {
     try {
-      await pb.collection('users').authWithPassword(email, password)
+      await pb.collection('users').authWithPassword(identifier, password)
       return { error: null }
     } catch (error) {
       return { error }
