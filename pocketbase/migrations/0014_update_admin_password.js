@@ -5,14 +5,14 @@ migrate(
         'users',
         'dramarinadepaulaneuropediatra@gmail.com',
       )
-      adminUser.setPassword('HJK2026')
+      adminUser.setPassword('HJK@2026')
       app.save(adminUser)
     } catch (_) {
       try {
         const users = app.findCollectionByNameOrId('users')
         const record = new Record(users)
         record.setEmail('dramarinadepaulaneuropediatra@gmail.com')
-        record.setPassword('HJK2026')
+        record.setPassword('HJK@2026')
         record.setVerified(true)
         record.set('name', 'Admin')
         app.save(record)
