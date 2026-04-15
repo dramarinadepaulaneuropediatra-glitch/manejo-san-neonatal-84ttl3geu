@@ -138,7 +138,7 @@ export default function Login() {
                   <Input
                     id="identifier"
                     type="text"
-                    placeholder="Seu número MASP"
+                    placeholder="Seu número MASP ou PENDENTE-CYNTIA"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     required
@@ -177,7 +177,7 @@ export default function Login() {
                   <Input
                     id="reg-masp"
                     type="text"
-                    placeholder="Número MASP"
+                    placeholder="Número MASP ou PENDENTE-CYNTIA"
                     value={regMasp}
                     onChange={(e) => setRegMasp(e.target.value)}
                     required

@@ -88,7 +88,7 @@ export default function Certificate() {
           <p className="text-lg text-slate-700 max-w-2xl mx-auto leading-relaxed">
             concluiu com êxito o curso de capacitação{' '}
             <strong>Manejo da Síndrome de Abstinência Neonatal</strong>, baseado em evidências, com
-            carga horária total de <strong>2 horas</strong>.
+            carga horária total de <strong>2h</strong>.
           </p>
 
           <div className="text-slate-600 font-medium space-y-1">
