@@ -37,6 +37,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data.masp && !data.username) {
         payload.username = data.masp
       }
+      if (!payload.email && data.masp) {
+        payload.email = `${data.masp.toLowerCase().replace(/[^a-z0-9]/g, '')}@hjk.local`
+      }
 
       await pb.collection('users').create(payload)
       const identifier = payload.username || payload.email

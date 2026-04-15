@@ -17,7 +17,6 @@ export default function Login() {
 
   // Register fields
   const [regMasp, setRegMasp] = useState('')
-  const [regEmail, setRegEmail] = useState('')
   const [regName, setRegName] = useState('')
 
   const [loadingLogin, setLoadingLogin] = useState(false)
@@ -66,18 +65,15 @@ export default function Login() {
       return
     }
 
-    if (regEmail !== 'dramarinadepaulaneuropediatra@gmail.com') {
-      try {
-        await pb.collection('masp_whitelist').getFirstListItem(`masp="${regMasp}"`)
-      } catch {
-        setErrors({ regMasp: 'MASP não autorizado. Acesso restrito à equipe treinada.' })
-        setLoadingLogin(false)
-        return
-      }
+    try {
+      await pb.collection('masp_whitelist').getFirstListItem(`masp="${regMasp}"`)
+    } catch {
+      setErrors({ regMasp: 'MASP não autorizado. Acesso restrito à equipe treinada.' })
+      setLoadingLogin(false)
+      return
     }
 
     const { error } = await signUp({
-      email: regEmail,
       password,
       name: regName,
       masp: regMasp,
@@ -87,7 +83,6 @@ export default function Login() {
     if (error) {
       const fieldErrors = extractFieldErrors(error)
       if (fieldErrors.username) fieldErrors.regMasp = fieldErrors.username
-      if (fieldErrors.email) fieldErrors.regEmail = fieldErrors.email
       setErrors(fieldErrors)
       toast({
         title: 'Erro no cadastro',
@@ -195,18 +190,6 @@ export default function Login() {
                     required
                   />
                   {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-email">Email Pessoal ou Institucional</Label>
-                  <Input
-                    id="reg-email"
-                    type="email"
-                    placeholder="nome@email.com"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    required
-                  />
-                  {errors.regEmail && <p className="text-sm text-destructive">{errors.regEmail}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-password">Senha</Label>
