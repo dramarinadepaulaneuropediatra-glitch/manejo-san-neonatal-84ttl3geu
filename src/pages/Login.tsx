@@ -1,29 +1,22 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { extractFieldErrors } from '@/lib/pocketbase/errors'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Stethoscope } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import pb from '@/lib/pocketbase/client'
 
 export default function Login() {
-  const [identifier, setIdentifier] = useState('') // MASP or admin email
-  const [password, setPassword] = useState('Skip@2026') // Standard password
-
-  // Register fields
-  const [regMasp, setRegMasp] = useState('')
-  const [regName, setRegName] = useState('')
+  const [name, setName] = useState('')
+  const [masp, setMasp] = useState('')
 
   const [loadingLogin, setLoadingLogin] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { user, loading, signIn, signUp } = useAuth()
+  const { user, loading, signIn } = useAuth()
 
   useEffect(() => {
     if (!loading && user) {
@@ -36,63 +29,29 @@ export default function Login() {
     setLoadingLogin(true)
     setErrors({})
 
-    if (password !== 'Skip@2026') {
-      setErrors({ password: 'A senha unificada para todos os usuários é Skip@2026.' })
-      setLoadingLogin(false)
-      return
+    let identifier = masp.trim()
+
+    // Admin login or special cases where masp is empty
+    if (!identifier) {
+      // Create a slug from the name to act as identifier (e.g. for Cyntia Nayara de Jesus)
+      identifier = name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]/g, '')
     }
 
-    const { error } = await signIn(identifier, password)
+    // If it's the admin, they might type their email in the MASP or Name field.
+    if (masp.includes('@')) identifier = masp.trim()
+    else if (name.includes('@')) identifier = name.trim()
+
+    const { error } = await signIn(identifier, 'Skip@2026')
     if (error) {
-      setErrors(extractFieldErrors(error))
+      setErrors({ root: 'Credenciais inválidas. Verifique seu Nome e MASP.' })
       toast({
         title: 'Erro no login',
-        description: 'Credenciais inválidas. Verifique seu MASP/Email.',
+        description: 'Não foi possível autenticar com as credenciais informadas.',
         variant: 'destructive',
-      })
-    }
-    setLoadingLogin(false)
-  }
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoadingLogin(true)
-    setErrors({})
-
-    if (password !== 'Skip@2026') {
-      setErrors({ password: 'A senha unificada para registro e acesso é Skip@2026.' })
-      setLoadingLogin(false)
-      return
-    }
-
-    try {
-      await pb.collection('masp_whitelist').getFirstListItem(`masp="${regMasp}"`)
-    } catch {
-      setErrors({ regMasp: 'MASP não autorizado. Acesso restrito à equipe treinada.' })
-      setLoadingLogin(false)
-      return
-    }
-
-    const { error } = await signUp({
-      password,
-      name: regName,
-      masp: regMasp,
-      username: regMasp,
-    })
-
-    if (error) {
-      const fieldErrors = extractFieldErrors(error)
-      if (fieldErrors.username) fieldErrors.regMasp = fieldErrors.username
-      setErrors(fieldErrors)
-      toast({
-        title: 'Erro no cadastro',
-        description: 'Verifique os dados e tente novamente.',
-        variant: 'destructive',
-      })
-    } else {
-      toast({
-        title: 'Cadastro concluído',
-        description: 'Bem-vindo ao curso!',
       })
     }
     setLoadingLogin(false)
@@ -117,98 +76,45 @@ export default function Login() {
           <CardDescription>Treinamento Baseado em Evidências</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full" onValueChange={() => setErrors({})}>
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="register">Cadastrar</TabsTrigger>
-            </TabsList>
+          <form
+            onSubmit={handleLogin}
+            className="space-y-4 animate-in fade-in zoom-in-95 duration-200"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome Completo</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Seu nome completo"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="masp">MASP</Label>
+                <span className="text-[10px] text-muted-foreground">Opcional se pendente</span>
+              </div>
+              <Input
+                id="masp"
+                type="text"
+                placeholder="Seu número MASP"
+                value={masp}
+                onChange={(e) => setMasp(e.target.value)}
+              />
+            </div>
 
-            <TabsContent value="login">
-              <form
-                onSubmit={handleLogin}
-                className="space-y-4 animate-in fade-in zoom-in-95 duration-200"
-              >
-                <div className="space-y-2">
-                  <Label htmlFor="identifier">MASP / Email</Label>
-                  <Input
-                    id="identifier"
-                    type="text"
-                    placeholder="Seu número MASP ou PENDENTE-CYNTIA"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    required
-                  />
-                  {errors.identifier && (
-                    <p className="text-sm text-destructive">{errors.identifier}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Senha Unificada</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Skip@2026"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    readOnly
-                    className="bg-muted/50 cursor-not-allowed text-muted-foreground"
-                  />
-                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                </div>
-                <Button type="submit" className="w-full" disabled={loadingLogin}>
-                  {loadingLogin ? 'Acessando...' : 'Entrar no Curso'}
-                </Button>
-              </form>
-            </TabsContent>
+            {errors.root && (
+              <p className="text-sm text-destructive text-center font-medium">{errors.root}</p>
+            )}
 
-            <TabsContent value="register">
-              <form
-                onSubmit={handleRegister}
-                className="space-y-4 animate-in fade-in zoom-in-95 duration-200"
-              >
-                <div className="space-y-2">
-                  <Label htmlFor="reg-masp">MASP</Label>
-                  <Input
-                    id="reg-masp"
-                    type="text"
-                    placeholder="Número MASP ou PENDENTE-CYNTIA"
-                    value={regMasp}
-                    onChange={(e) => setRegMasp(e.target.value)}
-                    required
-                  />
-                  {errors.regMasp && <p className="text-sm text-destructive">{errors.regMasp}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-name">Nome Completo</Label>
-                  <Input
-                    id="reg-name"
-                    type="text"
-                    placeholder="Nome que sairá no certificado"
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    required
-                  />
-                  {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-password">Senha</Label>
-                  <Input
-                    id="reg-password"
-                    type="password"
-                    value={password}
-                    readOnly
-                    className="bg-muted/50 cursor-not-allowed text-muted-foreground"
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={loadingLogin}>
-                  {loadingLogin ? 'Verificando MASP...' : 'Criar Cadastro'}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+            <Button type="submit" className="w-full mt-2" disabled={loadingLogin}>
+              {loadingLogin ? 'Acessando...' : 'Entrar no Curso'}
+            </Button>
+          </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground border-t pt-6">
+          <div className="mt-8 text-center text-sm text-muted-foreground border-t pt-6">
             <p>Acesso restrito à equipe autorizada do CTI Neonatal.</p>
           </div>
         </CardContent>
