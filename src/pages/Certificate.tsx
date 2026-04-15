@@ -93,27 +93,15 @@ export default function Certificate() {
 
           <div className="text-slate-600 font-medium space-y-1">
             <p>Belo Horizonte, {date}.</p>
-            <p className="text-sm mt-4">
-              <strong>Promotora:</strong> Dra Marina de Paula Lima Oliveira - MASP 11870979 -
-              Neuropediatra
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 mt-12 border-t border-slate-100">
+          <div className="flex justify-center pt-16 mt-12 border-t border-slate-100">
             <div className="text-center space-y-1">
-              <div className="border-t border-slate-300 pt-2 w-48 mx-auto"></div>
-              <p className="font-semibold text-sm text-slate-800">Dra. Letícia Coelho</p>
-              <p className="text-xs text-slate-500">Coordenadora Médica</p>
-            </div>
-            <div className="text-center space-y-1">
-              <div className="border-t border-slate-300 pt-2 w-48 mx-auto"></div>
-              <p className="font-semibold text-sm text-slate-800">Nilma Matoso Nicácio</p>
-              <p className="text-xs text-slate-500">Gerente do CTI Neonatal</p>
-            </div>
-            <div className="text-center space-y-1">
-              <div className="border-t border-slate-300 pt-2 w-48 mx-auto"></div>
-              <p className="font-semibold text-sm text-slate-800">Dra. Marina de Paula</p>
-              <p className="text-xs text-slate-500">Neuropediatra</p>
+              <div className="border-t border-slate-300 pt-2 w-64 mx-auto"></div>
+              <p className="font-semibold text-sm text-slate-800">
+                Dra. Marina de Paula Lima Oliveira
+              </p>
+              <p className="text-xs text-slate-500">Promotora - MASP 11870979 - Neuropediatra</p>
             </div>
           </div>
         </div>
