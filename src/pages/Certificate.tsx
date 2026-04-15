@@ -71,7 +71,7 @@ export default function Certificate() {
               CERTIFICADO
             </h2>
             <p className="text-primary font-medium uppercase tracking-widest text-sm md:text-base">
-              Hospital Júlia Kubitschek - FHEMIG
+              CTI neonatal Hospital Júlia Kubitschek - rede FHEMIG
             </p>
           </div>
 
@@ -87,11 +87,17 @@ export default function Certificate() {
 
           <p className="text-lg text-slate-700 max-w-2xl mx-auto leading-relaxed">
             concluiu com êxito o curso de capacitação{' '}
-            <strong>Manejo da Síndrome de Abstinência Neonatal (SAN)</strong>, baseado em
-            evidências, com carga horária total de <strong>2 horas</strong>.
+            <strong>Manejo da Síndrome de Abstinência Neonatal</strong>, baseado em evidências, com
+            carga horária total de <strong>2 horas</strong>.
           </p>
 
-          <p className="text-slate-500 font-medium">Belo Horizonte, {date}.</p>
+          <div className="text-slate-600 font-medium space-y-1">
+            <p>Belo Horizonte, {date}.</p>
+            <p className="text-sm mt-4">
+              <strong>Promotora:</strong> Dra Marina de Paula Lima Oliveira - MASP 11870979 -
+              Neuropediatra
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 mt-12 border-t border-slate-100">
             <div className="text-center space-y-1">

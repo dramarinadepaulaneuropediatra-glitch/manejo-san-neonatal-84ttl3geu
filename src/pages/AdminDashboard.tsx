@@ -36,7 +36,7 @@ export default function AdminDashboard() {
 
     async function load() {
       try {
-        const [users, sections, progress, interactions, responses] = await Promise.all([
+        const [users, sections, progress, interactions, responses, whitelist] = await Promise.all([
           pb.collection('users').getFullList({ sort: '-created' }),
           pb.collection('sections').getFullList({ sort: 'order' }),
           pb.collection('progress').getFullList(),
@@ -44,9 +44,10 @@ export default function AdminDashboard() {
             .collection('interactions')
             .getFullList({ filter: "type='quiz' || type='scenario' || type='case_study'" }),
           pb.collection('responses').getFullList(),
+          pb.collection('masp_whitelist').getFullList({ sort: 'masp' }),
         ])
 
-        setData({ users, sections, progress, interactions, responses })
+        setData({ users, sections, progress, interactions, responses, whitelist })
       } catch (err) {
         console.error(err)
       }
@@ -62,9 +63,11 @@ export default function AdminDashboard() {
     )
   }
 
-  const totalUsers = data.users.length
+  const totalUsers = data.whitelist.length
 
-  const courseCompletedUsersCount = data.users.filter((u: any) => {
+  const courseCompletedUsersCount = data.whitelist.filter((w: any) => {
+    const u = data.users.find((user: any) => user.masp === w.masp)
+    if (!u) return false
     const completedCount = data.progress.filter(
       (p: any) => p.user_id === u.id && p.completed,
     ).length
@@ -233,25 +236,30 @@ export default function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.users.map((u: any) => {
-                const userProgress = data.progress.filter(
-                  (p: any) => p.user_id === u.id && p.completed,
-                )
+              {data.whitelist.map((w: any) => {
+                const u = data.users.find((user: any) => user.masp === w.masp)
+
+                const userProgress = u
+                  ? data.progress.filter((p: any) => p.user_id === u.id && p.completed)
+                  : []
                 const comp = userProgress.length
                 const perc =
                   data.sections.length > 0 ? Math.round((comp / data.sections.length) * 100) : 0
 
-                let status = 'Não Iniciado'
+                let status = 'Não Registrado'
                 let statusColor = 'text-slate-500 bg-slate-100'
-                if (comp === data.sections.length && data.sections.length > 0) {
-                  status = 'Concluído'
-                  statusColor = 'text-emerald-700 bg-emerald-100'
-                } else if (comp > 0) {
-                  status = 'Em Andamento'
-                  statusColor = 'text-amber-700 bg-amber-100'
+                if (u) {
+                  status = 'Não Iniciado'
+                  if (comp === data.sections.length && data.sections.length > 0) {
+                    status = 'Concluído'
+                    statusColor = 'text-emerald-700 bg-emerald-100'
+                  } else if (comp > 0) {
+                    status = 'Em Andamento'
+                    statusColor = 'text-amber-700 bg-amber-100'
+                  }
                 }
 
-                const userResponses = data.responses.filter((r: any) => r.user_id === u.id)
+                const userResponses = u ? data.responses.filter((r: any) => r.user_id === u.id) : []
                 const userQuizResponses = userResponses.filter((r: any) =>
                   data.interactions.some(
                     (i: any) =>
@@ -265,15 +273,13 @@ export default function AdminDashboard() {
                 }).length
 
                 return (
-                  <TableRow key={u.id} className="hover:bg-muted/30">
+                  <TableRow key={w.id} className="hover:bg-muted/30">
                     <TableCell className="font-medium text-slate-800">
-                      {u.name || 'Usuário Sem Nome'}
+                      {u ? u.name || 'Usuário Sem Nome' : '---'}
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      {u.email}
-                      {u.masp && (
-                        <div className="text-xs text-slate-400 mt-0.5">MASP: {u.masp}</div>
-                      )}
+                      {u ? u.email : '---'}
+                      <div className="text-xs text-slate-400 mt-0.5">MASP: {w.masp}</div>
                     </TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}>
@@ -281,122 +287,143 @@ export default function AdminDashboard() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                          <span>{perc}%</span>
+                      {u ? (
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+                            <span>{perc}%</span>
+                          </div>
+                          <Progress value={perc} className="h-2 bg-slate-100" />
                         </div>
-                        <Progress value={perc} className="h-2 bg-slate-100" />
-                      </div>
+                      ) : (
+                        <div className="text-xs text-slate-400">---</div>
+                      )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {data.sections.map((sec: any) => {
-                          const isCompleted = userProgress.some((p: any) => p.section_id === sec.id)
-                          return (
-                            <Badge
-                              key={sec.id}
-                              variant={isCompleted ? 'default' : 'outline'}
-                              className={
-                                isCompleted
-                                  ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-transparent text-[10px] px-1.5'
-                                  : 'text-muted-foreground/50 border-muted text-[10px] px-1.5'
-                              }
-                            >
-                              M{sec.order}
-                            </Badge>
-                          )
-                        })}
-                      </div>
+                      {u ? (
+                        <div className="flex flex-wrap gap-1">
+                          {data.sections.map((sec: any) => {
+                            const isCompleted = userProgress.some(
+                              (p: any) => p.section_id === sec.id,
+                            )
+                            return (
+                              <Badge
+                                key={sec.id}
+                                variant={isCompleted ? 'default' : 'outline'}
+                                className={
+                                  isCompleted
+                                    ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-transparent text-[10px] px-1.5'
+                                    : 'text-muted-foreground/50 border-muted text-[10px] px-1.5'
+                                }
+                              >
+                                M{sec.order}
+                              </Badge>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-slate-400">---</div>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="h-8">
-                            Ver Respostas
-                            <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold">
-                              <span className="text-emerald-600">{correctQuizAnswers}</span>
-                              <span className="mx-0.5 text-slate-400">/</span>
-                              <span className="text-slate-600">{totalQuizAnswers}</span>
-                            </span>
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto custom-scrollbar">
-                          <DialogHeader>
-                            <DialogTitle className="text-xl">Respostas do Profissional</DialogTitle>
-                            <div className="text-sm text-muted-foreground mt-1">
-                              <strong>Nome:</strong> {u.name || 'Sem Nome'} <br />
-                              <strong>Email:</strong> {u.email}
-                            </div>
-                          </DialogHeader>
-                          <div className="space-y-4 mt-4">
-                            {userResponses.length === 0 ? (
-                              <p className="text-center p-6 bg-muted/30 rounded-lg text-muted-foreground">
-                                Este profissional ainda não respondeu a nenhuma interação.
-                              </p>
-                            ) : (
-                              data.interactions.map((int: any, idx: number) => {
-                                const response = userResponses.find(
-                                  (r: any) => r.interaction_id === int.id,
-                                )
-                                if (!response) return null
+                      {u ? (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8">
+                              Ver Respostas
+                              <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold">
+                                <span className="text-emerald-600">{correctQuizAnswers}</span>
+                                <span className="mx-0.5 text-slate-400">/</span>
+                                <span className="text-slate-600">{totalQuizAnswers}</span>
+                              </span>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto custom-scrollbar">
+                            <DialogHeader>
+                              <DialogTitle className="text-xl">
+                                Respostas do Profissional
+                              </DialogTitle>
+                              <div className="text-sm text-muted-foreground mt-1">
+                                <strong>Nome:</strong> {u.name || 'Sem Nome'} <br />
+                                <strong>Email:</strong> {u.email} <br />
+                                <strong>MASP:</strong> {w.masp}
+                              </div>
+                            </DialogHeader>
+                            <div className="space-y-4 mt-4">
+                              {userResponses.length === 0 ? (
+                                <p className="text-center p-6 bg-muted/30 rounded-lg text-muted-foreground">
+                                  Este profissional ainda não respondeu a nenhuma interação.
+                                </p>
+                              ) : (
+                                data.interactions.map((int: any, idx: number) => {
+                                  const response = userResponses.find(
+                                    (r: any) => r.interaction_id === int.id,
+                                  )
+                                  if (!response) return null
 
-                                const isQuiz = int.type === 'quiz' || int.type === 'scenario'
-                                const isCorrect = isQuiz && response.answer === int.options?.correct
+                                  const isQuiz = int.type === 'quiz' || int.type === 'scenario'
+                                  const isCorrect =
+                                    isQuiz && response.answer === int.options?.correct
 
-                                let displayAnswer = response.answer
-                                if (isQuiz && typeof response.answer === 'string') {
-                                  displayAnswer =
-                                    int.options?.choices?.find((c: any) => c.id === response.answer)
-                                      ?.text || response.answer
-                                }
+                                  let displayAnswer = response.answer
+                                  if (isQuiz && typeof response.answer === 'string') {
+                                    displayAnswer =
+                                      int.options?.choices?.find(
+                                        (c: any) => c.id === response.answer,
+                                      )?.text || response.answer
+                                  }
 
-                                return (
-                                  <div key={int.id} className="p-4 bg-muted/20 border rounded-lg">
-                                    <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2 flex justify-between items-center">
-                                      <span>
-                                        Interação {idx + 1} - {int.type}
-                                      </span>
-                                      {isQuiz && (
-                                        <Badge
-                                          variant={isCorrect ? 'default' : 'destructive'}
-                                          className={isCorrect ? 'bg-emerald-500' : ''}
-                                        >
-                                          {isCorrect ? 'Correto' : 'Incorreto'}
-                                        </Badge>
+                                  return (
+                                    <div key={int.id} className="p-4 bg-muted/20 border rounded-lg">
+                                      <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2 flex justify-between items-center">
+                                        <span>
+                                          Interação {idx + 1} - {int.type}
+                                        </span>
+                                        {isQuiz && (
+                                          <Badge
+                                            variant={isCorrect ? 'default' : 'destructive'}
+                                            className={isCorrect ? 'bg-emerald-500' : ''}
+                                          >
+                                            {isCorrect ? 'Correto' : 'Incorreto'}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <p className="font-medium text-sm mb-3 text-slate-800">
+                                        {int.question}
+                                      </p>
+                                      <div className="p-3 bg-white rounded-md border text-sm text-slate-700">
+                                        <span className="font-semibold block mb-1 text-xs text-slate-500">
+                                          Resposta:
+                                        </span>
+                                        {Array.isArray(displayAnswer)
+                                          ? displayAnswer.join(', ')
+                                          : displayAnswer}
+                                      </div>
+                                      {isQuiz && !isCorrect && int.options?.correct && (
+                                        <div className="p-3 bg-emerald-50 rounded-md border border-emerald-100 text-sm mt-2">
+                                          <span className="font-semibold block mb-1 text-xs text-emerald-700">
+                                            Resposta Esperada:
+                                          </span>
+                                          <span className="text-emerald-800">
+                                            {
+                                              int.options.choices?.find(
+                                                (c: any) => c.id === int.options.correct,
+                                              )?.text
+                                            }
+                                          </span>
+                                        </div>
                                       )}
                                     </div>
-                                    <p className="font-medium text-sm mb-3 text-slate-800">
-                                      {int.question}
-                                    </p>
-                                    <div className="p-3 bg-white rounded-md border text-sm text-slate-700">
-                                      <span className="font-semibold block mb-1 text-xs text-slate-500">
-                                        Resposta:
-                                      </span>
-                                      {Array.isArray(displayAnswer)
-                                        ? displayAnswer.join(', ')
-                                        : displayAnswer}
-                                    </div>
-                                    {isQuiz && !isCorrect && int.options?.correct && (
-                                      <div className="p-3 bg-emerald-50 rounded-md border border-emerald-100 text-sm mt-2">
-                                        <span className="font-semibold block mb-1 text-xs text-emerald-700">
-                                          Resposta Esperada:
-                                        </span>
-                                        <span className="text-emerald-800">
-                                          {
-                                            int.options.choices?.find(
-                                              (c: any) => c.id === int.options.correct,
-                                            )?.text
-                                          }
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-                                )
-                              })
-                            )}
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+                                  )
+                                })
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      ) : (
+                        <Button variant="ghost" size="sm" className="h-8" disabled>
+                          Sem Respostas
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 )

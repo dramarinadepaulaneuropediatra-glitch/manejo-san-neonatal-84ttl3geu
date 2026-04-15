@@ -13,7 +13,7 @@ import pb from '@/lib/pocketbase/client'
 
 export default function Login() {
   const [identifier, setIdentifier] = useState('') // MASP or admin email
-  const [password, setPassword] = useState('HJK@2026') // Standard password
+  const [password, setPassword] = useState('Skip@2026') // Standard password
 
   // Register fields
   const [regMasp, setRegMasp] = useState('')
@@ -37,8 +37,8 @@ export default function Login() {
     setLoadingLogin(true)
     setErrors({})
 
-    if (password !== 'HJK@2026') {
-      setErrors({ password: 'A senha unificada para todos os usuários é HJK@2026.' })
+    if (password !== 'Skip@2026') {
+      setErrors({ password: 'A senha unificada para todos os usuários é Skip@2026.' })
       setLoadingLogin(false)
       return
     }
@@ -60,8 +60,8 @@ export default function Login() {
     setLoadingLogin(true)
     setErrors({})
 
-    if (password !== 'HJK@2026') {
-      setErrors({ password: 'A senha unificada para registro e acesso é HJK@2026.' })
+    if (password !== 'Skip@2026') {
+      setErrors({ password: 'A senha unificada para registro e acesso é Skip@2026.' })
       setLoadingLogin(false)
       return
     }
@@ -152,7 +152,7 @@ export default function Login() {
                   <Input
                     id="password"
                     type="password"
-                    placeholder="HJK@2026"
+                    placeholder="Skip@2026"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
