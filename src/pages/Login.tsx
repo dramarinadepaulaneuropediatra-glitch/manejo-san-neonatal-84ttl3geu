@@ -16,7 +16,7 @@ export default function Login() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { user, loading, signIn } = useAuth()
+  const { user, loading, signIn, signInWithMasp } = useAuth()
 
   useEffect(() => {
     if (!loading && user) {
@@ -29,31 +29,24 @@ export default function Login() {
     setLoadingLogin(true)
     setErrors({})
 
-    let identifier = masp.trim()
+    let error
 
-    // If it's the admin, they might type their email in the MASP or Name field.
-    if (masp.includes('@')) {
-      identifier = masp.trim()
-    } else if (name.includes('@')) {
-      identifier = name.trim()
+    if (masp.includes('@') || name.includes('@')) {
+      const identifier = masp.includes('@') ? masp.trim() : name.trim()
+      const res = await signIn(identifier, 'Skip@2026')
+      error = res.error
     } else {
-      const nameSlug = name
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]/g, '')
-      identifier = `${nameSlug}_${masp.trim()}`
+      const res = await signInWithMasp(name, masp)
+      error = res.error
     }
 
-    const { error } = await signIn(identifier, 'Skip@2026')
     if (error) {
       setErrors({
-        root: 'Nome ou MASP não encontrados. Verifique os dados ou entre em contato com a coordenação.',
+        root: 'Dados não encontrados. Por favor, verifique seu nome e MASP.',
       })
       toast({
         title: 'Erro no login',
-        description:
-          'Nome ou MASP não encontrados. Verifique os dados ou entre em contato com a coordenação.',
+        description: 'Dados não encontrados. Por favor, verifique seu nome e MASP.',
         variant: 'destructive',
       })
     }
