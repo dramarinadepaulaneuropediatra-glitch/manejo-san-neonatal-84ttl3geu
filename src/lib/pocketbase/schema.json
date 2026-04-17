@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-15T15:34:46.654Z",
+  "generatedAt": "2026-04-17T01:04:55.973Z",
   "collections": [
     {
       "name": "users",
@@ -7,7 +7,7 @@
       "apiRules": {
         "list": "id = @request.auth.id || @request.auth.email = 'dramarinadepaulaneuropediatra@gmail.com'",
         "view": "id = @request.auth.id || @request.auth.email = 'dramarinadepaulaneuropediatra@gmail.com'",
-        "create": "",
+        "create": null,
         "update": "id = @request.auth.id",
         "delete": "id = @request.auth.id"
       },

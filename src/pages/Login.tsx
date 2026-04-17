@@ -31,26 +31,29 @@ export default function Login() {
 
     let identifier = masp.trim()
 
-    // Admin login or special cases where masp is empty
-    if (!identifier) {
-      // Create a slug from the name to act as identifier (e.g. for Cyntia Nayara de Jesus)
-      identifier = name
+    // If it's the admin, they might type their email in the MASP or Name field.
+    if (masp.includes('@')) {
+      identifier = masp.trim()
+    } else if (name.includes('@')) {
+      identifier = name.trim()
+    } else {
+      const nameSlug = name
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]/g, '')
+      identifier = `${nameSlug}_${masp.trim()}`
     }
-
-    // If it's the admin, they might type their email in the MASP or Name field.
-    if (masp.includes('@')) identifier = masp.trim()
-    else if (name.includes('@')) identifier = name.trim()
 
     const { error } = await signIn(identifier, 'Skip@2026')
     if (error) {
-      setErrors({ root: 'Credenciais inválidas. Verifique seu Nome e MASP.' })
+      setErrors({
+        root: 'Nome ou MASP não encontrados. Verifique os dados ou entre em contato com a coordenação.',
+      })
       toast({
         title: 'Erro no login',
-        description: 'Não foi possível autenticar com as credenciais informadas.',
+        description:
+          'Nome ou MASP não encontrados. Verifique os dados ou entre em contato com a coordenação.',
         variant: 'destructive',
       })
     }
