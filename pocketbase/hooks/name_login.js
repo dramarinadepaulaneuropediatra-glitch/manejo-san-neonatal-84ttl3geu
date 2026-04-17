@@ -1,7 +1,6 @@
-routerAdd('POST', '/backend/v1/masp-login', (e) => {
+routerAdd('POST', '/backend/v1/name-login', (e) => {
   const body = e.requestInfo().body || {}
   const name = (body.name || '').trim()
-  const masp = (body.masp || '').trim()
 
   if (!name) {
     return e.badRequestError('Nome é obrigatório.')
@@ -15,6 +14,8 @@ routerAdd('POST', '/backend/v1/masp-login', (e) => {
     0,
   )
 
+  const searchName = name.toLowerCase()
+
   const normalize = (str) => {
     return str
       .toLowerCase()
@@ -24,26 +25,38 @@ routerAdd('POST', '/backend/v1/masp-login', (e) => {
       .replace(/[óòõôö]/g, 'o')
       .replace(/[úùûü]/g, 'u')
       .replace(/[ç]/g, 'c')
-      .replace(/[^a-z0-9]/g, '')
+      .replace(/[^a-z0-9 ]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
   }
-
-  const searchName = normalize(name)
-  const searchMasp = normalize(masp)
+  const searchNameNormalized = normalize(name)
 
   let matchedUser = null
   for (let i = 0; i < users.length; i++) {
     const u = users[i]
-    const uName = normalize(u.getString('name'))
-    const uMasp = normalize(u.getString('masp'))
+    const uNameRaw = u.getString('name')
 
-    if (uName === searchName && uMasp === searchMasp) {
+    // Strict exact match but case-insensitive
+    if (uNameRaw.toLowerCase().trim() === searchName) {
       matchedUser = u
       break
     }
   }
 
   if (!matchedUser) {
-    return e.unauthorizedError('Dados não encontrados. Por favor, verifique seu nome e MASP.')
+    // Fallback to normalized match for better UX
+    for (let i = 0; i < users.length; i++) {
+      const u = users[i]
+      const uNameRaw = u.getString('name')
+      if (normalize(uNameRaw) === searchNameNormalized) {
+        matchedUser = u
+        break
+      }
+    }
+  }
+
+  if (!matchedUser) {
+    return e.unauthorizedError('Dados não encontrados. Por favor, verifique seu nome.')
   }
 
   return $apis.recordAuthResponse($app, e, matchedUser)

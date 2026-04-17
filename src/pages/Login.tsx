@@ -10,13 +10,12 @@ import { useToast } from '@/hooks/use-toast'
 
 export default function Login() {
   const [name, setName] = useState('')
-  const [masp, setMasp] = useState('')
 
   const [loadingLogin, setLoadingLogin] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { user, loading, signIn, signInWithMasp } = useAuth()
+  const { user, loading, signIn, signInWithName } = useAuth()
 
   useEffect(() => {
     if (!loading && user) {
@@ -31,22 +30,21 @@ export default function Login() {
 
     let error
 
-    if (masp.includes('@') || name.includes('@')) {
-      const identifier = masp.includes('@') ? masp.trim() : name.trim()
-      const res = await signIn(identifier, 'Skip@2026')
+    if (name.includes('@')) {
+      const res = await signIn(name.trim(), 'Skip@2026')
       error = res.error
     } else {
-      const res = await signInWithMasp(name, masp)
+      const res = await signInWithName(name)
       error = res.error
     }
 
     if (error) {
       setErrors({
-        root: 'Dados não encontrados. Por favor, verifique seu nome e MASP.',
+        root: 'Dados não encontrados. Por favor, verifique seu nome.',
       })
       toast({
         title: 'Erro no login',
-        description: 'Dados não encontrados. Por favor, verifique seu nome e MASP.',
+        description: 'Dados não encontrados. Por favor, verifique seu nome.',
         variant: 'destructive',
       })
     }
@@ -87,20 +85,6 @@ export default function Login() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="masp">MASP</Label>
-                <span className="text-[10px] text-muted-foreground">Opcional se pendente</span>
-              </div>
-              <Input
-                id="masp"
-                type="text"
-                placeholder="Seu número MASP"
-                value={masp}
-                onChange={(e) => setMasp(e.target.value)}
-              />
-            </div>
-
             {errors.root && (
               <p className="text-sm text-destructive text-center font-medium">{errors.root}</p>
             )}

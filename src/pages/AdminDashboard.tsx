@@ -272,10 +272,7 @@ export default function AdminDashboard() {
                     <TableCell className="font-medium text-slate-800">
                       {u.name || 'Usuário Sem Nome'}
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {u.email}
-                      <div className="text-xs text-slate-400 mt-0.5">MASP: {u.masp || '---'}</div>
-                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{u.email}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}>
                         {status}
@@ -326,8 +323,7 @@ export default function AdminDashboard() {
                             <DialogTitle className="text-xl">Respostas do Profissional</DialogTitle>
                             <div className="text-sm text-muted-foreground mt-1">
                               <strong>Nome:</strong> {u.name || 'Sem Nome'} <br />
-                              <strong>Email:</strong> {u.email} <br />
-                              <strong>MASP:</strong> {u.masp || '---'}
+                              <strong>Email:</strong> {u.email}
                             </div>
                           </DialogHeader>
                           <div className="space-y-4 mt-4">

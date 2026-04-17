@@ -4,7 +4,7 @@ import pb from '@/lib/pocketbase/client'
 interface AuthContextType {
   user: any
   signIn: (email: string, password: string) => Promise<{ error: any }>
-  signInWithMasp: (name: string, masp: string) => Promise<{ error: any }>
+  signInWithName: (name: string) => Promise<{ error: any }>
   signOut: () => void
   loading: boolean
 }
@@ -40,11 +40,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const signInWithMasp = async (name: string, masp: string) => {
+  const signInWithName = async (name: string) => {
     try {
-      const response = await pb.send('/backend/v1/masp-login', {
+      const response = await pb.send('/backend/v1/name-login', {
         method: 'POST',
-        body: JSON.stringify({ name, masp }),
+        body: JSON.stringify({ name }),
         headers: { 'Content-Type': 'application/json' },
       })
       pb.authStore.save(response.token, response.record)
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signInWithMasp, signOut, loading }}>
+    <AuthContext.Provider value={{ user, signIn, signInWithName, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   )
